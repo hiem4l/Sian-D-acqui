@@ -20,8 +20,8 @@ export function PizzeriaHome({ onNavigate }: Props) {
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center gap-8 p-4 md:p-8">
         {/* Menu Section */}
-        <div className="backdrop-blur-sm bg-white/10 rounded-2xl p-8 md:p-12 text-center max-w-md w-full transform hover:scale-105 transition-transform duration-300">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white font-heading">Notre Menu</h2>
+        <div className="text-center transform hover:scale-105 transition-transform duration-300">
+          <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white font-heading drop-shadow-lg">Notre Menu</h2>
           <Button 
             size="lg" 
             variant="outline" 
@@ -33,8 +33,8 @@ export function PizzeriaHome({ onNavigate }: Props) {
         </div>
 
         {/* Commander Section */}
-        <div className="backdrop-blur-sm bg-white/10 rounded-2xl p-8 md:p-12 text-center max-w-md w-full transform hover:scale-105 transition-transform duration-300">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white font-heading">Commander</h2>
+        <div className="text-center transform hover:scale-105 transition-transform duration-300">
+          <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white font-heading drop-shadow-lg">Commander</h2>
           <Button 
             size="lg" 
             className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg px-8 py-6"
