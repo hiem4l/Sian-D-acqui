@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Pizza, IceCream, Wine } from "lucide-react";
+import { Pizza, IceCream, Wine, Loader2, TrendingUp } from "lucide-react";
+import { toast } from 'sonner';
 
 interface AdminUser {
   id: string;

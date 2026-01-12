@@ -23,8 +23,9 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Edit2, Trash2, Save, X, Plus } from 'lucide-react';
+import { GripVertical, Edit2, Trash2, Save, X, Plus, Loader2, Check } from 'lucide-react';
 import { ImageUploadCrop } from './ImageUploadCrop';
+import { toast } from 'sonner';
 
 interface Pizza {
   id: number;
@@ -55,6 +56,8 @@ interface SortablePizzaProps {
   onDelete: (id: number) => void;
   editingPizza: Partial<Pizza>;
   setEditingPizza: (pizza: Partial<Pizza>) => void;
+  isSaving?: boolean;
+  isDeleting?: boolean;
 }
 
 function SortablePizza({
@@ -65,7 +68,9 @@ function SortablePizza({
   onCancel,
   onDelete,
   editingPizza,
-  setEditingPizza
+  setEditingPizza,
+  isSaving = false,
+  isDeleting = false
 }: SortablePizzaProps) {
   const {
     attributes,
@@ -160,13 +165,27 @@ function SortablePizza({
 
             {/* Actions */}
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" size="sm" onClick={onCancel}>
+              <Button variant="outline" size="sm" onClick={onCancel} disabled={isSaving}>
                 <X className="w-4 h-4 mr-1" />
                 Annuler
               </Button>
-              <Button size="sm" onClick={() => onSave(editingPizza as Pizza)}>
-                <Save className="w-4 h-4 mr-1" />
-                Sauvegarder
+              <Button 
+                size="sm" 
+                onClick={() => onSave(editingPizza as Pizza)}
+                disabled={isSaving || !editingPizza.name}
+                className="min-w-[120px]"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    Sauvegarde...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-1" />
+                    Sauvegarder
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -176,7 +195,15 @@ function SortablePizza({
   }
 
   return (
-    <Card ref={setNodeRef} style={style} className="mb-4">
+    <Card 
+      ref={setNodeRef} 
+      style={style} 
+      className={`mb-4 transition-all duration-200 hover:shadow-md ${
+        isDeleting ? 'opacity-50 pointer-events-none' : ''
+      } ${
+        isDragging ? 'rotate-2 shadow-lg' : ''
+      }`}
+    >
       <CardContent className="p-4">
         <div className="flex items-center space-x-4">
           {/* Drag Handle */}
@@ -220,6 +247,8 @@ function SortablePizza({
               variant="outline"
               size="sm"
               onClick={() => onEdit(pizza)}
+              disabled={isDeleting}
+              className="transition-all hover:scale-105"
             >
               <Edit2 className="w-4 h-4" />
             </Button>
@@ -227,9 +256,14 @@ function SortablePizza({
               variant="outline"
               size="sm"
               onClick={() => onDelete(pizza.id)}
-              className="text-red-600 hover:text-red-700"
+              disabled={isDeleting}
+              className="text-red-600 hover:text-red-700 transition-all hover:scale-105 min-w-[40px]"
             >
-              <Trash2 className="w-4 h-4" />
+              {isDeleting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
             </Button>
           </div>
         </div>
@@ -247,6 +281,8 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingPizza, setEditingPizza] = useState<Partial<Pizza>>({});
   const [isCreating, setIsCreating] = useState(false);
+  const [savingIds, setSavingIds] = useState<Set<number>>(new Set());
+  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -261,14 +297,17 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
 
   const fetchPizzas = async () => {
     try {
+      setLoading(true);
       const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
       const response = await fetch(`${API_BASE}/pizzas`);
       const data = await response.json();
       setPizzas(data);
       setOriginalOrder(data.map((p: Pizza) => p.id));
       setOrderChanged(false);
+      toast.success(`${data.length} pizzas chargées avec succès`);
     } catch (error) {
       console.error('Erreur lors du chargement des pizzas:', error);
+      toast.error('Erreur lors du chargement des pizzas');
     } finally {
       setLoading(false);
     }
@@ -295,6 +334,7 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
 
   const saveOrder = async () => {
     setSaving(true);
+    toast.loading('Sauvegarde de l\'ordre...', { id: 'save-order' });
     try {
       const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
       const pizzaIds = pizzas.map(p => p.id);
@@ -308,9 +348,10 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
       
       setOriginalOrder(pizzaIds);
       setOrderChanged(false);
+      toast.success('Ordre sauvegardé avec succès !', { id: 'save-order' });
     } catch (error) {
       console.error('Erreur lors de la sauvegarde de l\'ordre:', error);
-      alert('Erreur lors de la sauvegarde de l\'ordre');
+      toast.error('Erreur lors de la sauvegarde', { id: 'save-order' });
     } finally {
       setSaving(false);
     }
@@ -329,6 +370,10 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
   };
 
   const handleSave = async (updatedPizza: Pizza) => {
+    const pizzaId = updatedPizza.id;
+    setSavingIds(prev => new Set([...prev, pizzaId]));
+    toast.loading(`Sauvegarde de ${updatedPizza.name}...`, { id: `save-${pizzaId}` });
+    
     try {
       const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
       const response = await fetch(`${API_BASE}/pizzas/${updatedPizza.id}`, {
@@ -351,9 +396,19 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
         await fetchPizzas();
         setEditingId(null);
         setEditingPizza({});
+        toast.success(`${updatedPizza.name} sauvegardée !`, { id: `save-${pizzaId}` });
+      } else {
+        throw new Error('Erreur de sauvegarde');
       }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
+      toast.error(`Erreur lors de la sauvegarde de ${updatedPizza.name}`, { id: `save-${pizzaId}` });
+    } finally {
+      setSavingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(pizzaId);
+        return newSet;
+      });
     }
   };
 
@@ -364,7 +419,13 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette pizza ?')) {
+    const pizza = pizzas.find(p => p.id === id);
+    const pizzaName = pizza?.name || `Pizza ${id}`;
+    
+    if (confirm(`Êtes-vous sûr de vouloir supprimer "${pizzaName}" ?`)) {
+      setDeletingIds(prev => new Set([...prev, id]));
+      toast.loading(`Suppression de ${pizzaName}...`, { id: `delete-${id}` });
+      
       try {
         const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
         const response = await fetch(`${API_BASE}/pizzas/${id}`, {
@@ -373,14 +434,27 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
 
         if (response.ok) {
           await fetchPizzas();
+          toast.success(`${pizzaName} supprimée avec succès`, { id: `delete-${id}` });
+        } else {
+          throw new Error('Erreur de suppression');
         }
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
+        toast.error(`Erreur lors de la suppression de ${pizzaName}`, { id: `delete-${id}` });
+      } finally {
+        setDeletingIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(id);
+          return newSet;
+        });
       }
     }
   };
 
   const handleCreate = async (newPizza: Partial<Pizza>) => {
+    setSaving(true);
+    toast.loading(`Création de ${newPizza.name || 'la nouvelle pizza'}...`, { id: 'create-pizza' });
+    
     try {
       const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
       const response = await fetch(`${API_BASE}/pizzas`, {
@@ -404,9 +478,15 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
         await fetchPizzas();
         setIsCreating(false);
         setEditingPizza({});
+        toast.success(`${newPizza.name} créée avec succès !`, { id: 'create-pizza' });
+      } else {
+        throw new Error('Erreur de création');
       }
     } catch (error) {
       console.error('Erreur lors de la création:', error);
+      toast.error('Erreur lors de la création de la pizza', { id: 'create-pizza' });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -470,6 +550,7 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
               onDelete={() => {}}
               editingPizza={editingPizza}
               setEditingPizza={setEditingPizza}
+              isSaving={saving}
             />
           </CardContent>
         </Card>
@@ -493,6 +574,8 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
               onDelete={handleDelete}
               editingPizza={editingPizza}
               setEditingPizza={setEditingPizza}
+              isSaving={savingIds.has(pizza.id)}
+              isDeleting={deletingIds.has(pizza.id)}
             />
           ))}
         </SortableContext>
@@ -524,9 +607,19 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
                 size="sm"
                 onClick={saveOrder}
                 disabled={saving}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 min-w-[140px] transition-all"
               >
-                {saving ? 'Sauvegarde...' : 'Sauvegarder l\'ordre'}
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sauvegarde...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Sauvegarder
+                  </>
+                )}
               </Button>
             </div>
           </div>

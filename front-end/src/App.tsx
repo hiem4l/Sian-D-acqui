@@ -8,6 +8,7 @@ import { AdminPage } from "./components/AdminPage";
 import { PizzaDetailPage } from "./components/PizzaDetailPage";
 import { AccessibilityProvider } from "./components/AccessibilityProvider";
 import { AuthProvider } from "./contexts/AuthContext";
+import { Toaster } from 'sonner';
 import { PizzaProvider } from "./contexts/PizzaContext";
 
 type Page = "home" | "menu" | "contact" | "admin" | "pizza-detail";
@@ -114,6 +115,21 @@ function AppContent() {
           
 
         </div>
+        
+        {/* Toast Notifications */}
+        <Toaster 
+          position="top-right" 
+          richColors 
+          closeButton 
+          toastOptions={{
+            style: {
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            },
+            className: 'font-sans',
+          }}
+        />
     </AccessibilityProvider>
   );
 }
