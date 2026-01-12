@@ -6,9 +6,8 @@ services:
     region: frankfurt
     plan: free
     branch: main
-    rootDir: sian-dacqui-backend
-    buildCommand: npm install && npm run build
-    startCommand: npm run start:prod
+    buildCommand: npm install --prefix sian-dacqui-backend && npm run build --prefix sian-dacqui-backend
+    startCommand: cd sian-dacqui-backend && npm run start:prod
     healthCheckPath: /api/pizzas
     envVars:
       - key: NODE_ENV
