@@ -15,30 +15,6 @@ export function PizzaDetailPage({ pizzaId, onNavigate }: PizzaDetailPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Histoires des pizzas (données statiques)
-  const histoires: Record<string, string> = {
-    "La Marguerite": "Créée en 1889 à Naples en l'honneur de la Reine Marguerite, elle reprend les couleurs du drapeau italien : rouge (tomate) et blanc (mozzarella).",
-    "La Regina": "Appelée aussi 'La Reine', cette pizza tire son nom de sa générosité royale.",
-    "La Napo": "Originaire de Naples, cette pizza est un classique incontournable de la cuisine italienne.",
-    "La Napolitaine": "Originaire de Naples, cette pizza est un classique incontournable de la cuisine italienne.",
-    "La Caprese": "Inspirée du classique salade italienne avec une touche salée.",
-    "La Quatre Saisons": "Chaque quart représente une saison avec ses ingrédients signature.",
-    "La 4 Saisons": "Chaque quart représente une saison avec ses ingrédients signature.",
-    "La Chevre Miel": "Un mariage subtil entre saveurs sucrées et fromage onctueux.",
-    "La Chèvre Miel": "Un mariage subtil entre saveurs sucrées et fromage onctueux.",
-    "La Calabrese": "Une véritable pizza du sud de l'Italie avec saveurs prononcées.",
-    "La Calzone": "La version repliée classique de la pizza, parfaite pour déguster sans se salir.",
-    "La Quatre Fromages": "Pour les amateurs de fromage, un délice fromagé à chaque bouchée.",
-    "La 4 Fromages": "Pour les amateurs de fromage, un délice fromagé à chaque bouchée.",
-    "La Merguez": "Une création gourmande combinant la merguez traditionnelle et les olives.",
-    "La Cannibale": "Une pizza moderne et carnivore pour les amateurs de saveurs intenses.",
-    "La Lily-Rose": "Une création gourmande combinant saveurs charcutières et fraîcheur.",
-    "La Emmy-Lou": "Une création gourmande et équilibrée pour les amateurs de saveurs douces.",
-    "La Chris": "Une pizza méditerranéenne avec un twist carnivore en finition.",
-    "La Ludmilove": "L'élégance italienne en une pizza avec les meilleurs ingrédients.",
-    "La Truffe": "L'apothéose du raffinement, une pizza pour les grandes occasions."
-  };
-
   useEffect(() => {
     const fetchPizza = async () => {
       try {
@@ -80,7 +56,6 @@ export function PizzaDetailPage({ pizzaId, onNavigate }: PizzaDetailPageProps) {
   }
 
   const pizzaAllergens = getPizzaAllergens(pizzaId);
-  const histoire = histoires[pizza.name] || "Une délicieuse pizza préparée avec soin par nos pizzaiolos.";
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FFF8F0' }}>
@@ -147,12 +122,6 @@ export function PizzaDetailPage({ pizzaId, onNavigate }: PizzaDetailPageProps) {
               <AllergenList allergens={pizzaAllergens} size="md" layout="horizontal" />
             </div>
           )}
-
-          {/* Histoire */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-2xl font-bold mb-3 text-gray-900">Histoire</h2>
-            <p className="text-gray-700 text-lg leading-relaxed">{histoire}</p>
-          </div>
 
           {/* Ingrédients */}
           {pizza.ingredients && pizza.ingredients.length > 0 && (
