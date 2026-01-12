@@ -23,7 +23,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Edit2, Trash2, Save, X, Plus, Loader2, Check } from 'lucide-react';
+import { GripVertical, Edit2, Trash2, Save, X, Plus, Loader2, Check, TrendingUp } from 'lucide-react';
 import { ImageUploadCrop } from './ImageUploadCrop';
 import { toast } from 'sonner';
 
@@ -512,7 +512,44 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
   };
 
   if (loading) {
-    return <div className="p-8 text-center">Chargement...</div>;
+    return (
+      <div className="p-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <div className="h-8 w-64 bg-gray-200 rounded-md animate-pulse mb-2"></div>
+              <div className="h-4 w-96 bg-gray-200 rounded-md animate-pulse"></div>
+            </div>
+            <div className="flex space-x-2">
+              <div className="h-10 w-32 bg-gray-200 rounded-md animate-pulse"></div>
+              <div className="h-10 w-20 bg-gray-200 rounded-md animate-pulse"></div>
+            </div>
+          </div>
+          
+          {/* Pizza Cards Skeleton */}
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="mb-4 p-4 bg-white rounded-lg border animate-pulse">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="h-6 w-32 bg-gray-200 rounded"></div>
+                    <div className="h-5 w-16 bg-gray-200 rounded"></div>
+                  </div>
+                  <div className="h-4 w-80 bg-gray-200 rounded mb-1"></div>
+                  <div className="h-3 w-40 bg-gray-200 rounded"></div>
+                </div>
+                <div className="flex space-x-2">
+                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -524,7 +561,11 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
           <p className="text-gray-600">Réorganisez par glisser-déposer, éditez et gérez vos pizzas</p>
         </div>
         <div className="flex space-x-2">
-          <Button onClick={startCreating} className="bg-green-600 hover:bg-green-700">
+          <Button 
+            onClick={startCreating} 
+            className="bg-green-600 hover:bg-green-700 transition-all hover:scale-105 shadow-lg hover:shadow-xl"
+            disabled={saving}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle Pizza
           </Button>
@@ -589,17 +630,22 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
 
       {/* Bouton de sauvegarde de l'ordre */}
       {orderChanged && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-lg p-4 border">
-          <div className="flex items-center space-x-3">
-            <div className="text-sm text-gray-600">
-              L'ordre des pizzas a été modifié
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white shadow-2xl rounded-xl p-6 border border-gray-200 animate-in slide-in-from-bottom-4 duration-300 z-50">
+          <div className="flex items-center space-x-4">
+            <div className="p-2 bg-blue-100 rounded-full">
+              <TrendingUp className="w-5 h-5 text-blue-600" />
             </div>
-            <div className="flex space-x-2">
+            <div className="text-sm text-gray-700">
+              <div className="font-medium">Ordre modifié</div>
+              <div className="text-gray-500">Sauvegardez vos changements</div>
+            </div>
+            <div className="flex space-x-3">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={cancelOrder}
                 disabled={saving}
+                className="transition-all hover:scale-105"
               >
                 Annuler
               </Button>
@@ -607,7 +653,7 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
                 size="sm"
                 onClick={saveOrder}
                 disabled={saving}
-                className="bg-green-600 hover:bg-green-700 min-w-[140px] transition-all"
+                className="bg-green-600 hover:bg-green-700 min-w-[140px] transition-all hover:scale-105 shadow-lg"
               >
                 {saving ? (
                   <>
