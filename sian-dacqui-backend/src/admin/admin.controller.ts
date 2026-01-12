@@ -238,4 +238,117 @@ SELECT setval('ingredients_id_seq', (SELECT MAX(id) FROM ingredients));
       };
     }
   }
+
+  @Post('restore-ingredients')
+  async restoreIngredients() {
+    try {
+      // Définition de tous les ingrédients avec leurs allergènes
+      const ingredients = [
+        { name: 'Sauce tomate', allergen: false },
+        { name: 'Mozzarella', allergen: true },
+        { name: 'Basilic', allergen: false },
+        { name: 'Huile d\'olive', allergen: false },
+        { name: 'Jambon', allergen: false },
+        { name: 'Champignons', allergen: false },
+        { name: 'Anchois', allergen: true },
+        { name: 'Câpres', allergen: false },
+        { name: 'Olives noires', allergen: false },
+        { name: 'Tomates fraîches', allergen: false },
+        { name: 'Artichauts', allergen: false },
+        { name: 'Olives', allergen: false },
+        { name: 'Fromage de chèvre', allergen: true },
+        { name: 'Miel', allergen: false },
+        { name: 'Noix', allergen: true },
+        { name: 'Gorgonzola', allergen: true },
+        { name: 'Parmesan', allergen: true },
+        { name: 'Chèvre', allergen: true },
+        { name: 'Salami piquant', allergen: false },
+        { name: 'Poivrons', allergen: false },
+        { name: 'Œuf', allergen: true },
+        { name: 'Merguez', allergen: false },
+        { name: 'Oignons', allergen: false },
+        { name: 'Bœuf haché', allergen: false },
+        { name: 'Chorizo', allergen: false },
+        { name: 'Jambon de Parme', allergen: false },
+        { name: 'Roquette', allergen: false },
+        { name: 'Tomates cerises', allergen: false },
+        { name: 'Crème fraîche', allergen: true },
+        { name: 'Saumon fumé', allergen: true },
+        { name: 'Aneth', allergen: false },
+        { name: 'Citron', allergen: false },
+        { name: 'Oignons rouges', allergen: false },
+        { name: 'Aubergine', allergen: false },
+        { name: 'Courgettes', allergen: false },
+        { name: 'Jambon cru', allergen: false },
+        { name: 'Poire', allergen: false },
+        { name: 'Crème de truffe', allergen: false },
+        { name: 'Huile de truffe', allergen: false },
+      ];
+
+      // Lien pizza-ingrédients
+      const pizzaIngredients = {
+        'La Marguerite': ['Sauce tomate', 'Mozzarella', 'Basilic', 'Huile d\'olive'],
+        'La Regina': ['Sauce tomate', 'Mozzarella', 'Jambon', 'Champignons'],
+        'La Napolitaine': ['Sauce tomate', 'Mozzarella', 'Anchois', 'Câpres', 'Olives noires'],
+        'La Caprese': ['Sauce tomate', 'Mozzarella', 'Tomates fraîches', 'Basilic', 'Huile d\'olive'],
+        'La Quatre Saisons': ['Sauce tomate', 'Mozzarella', 'Jambon', 'Champignons', 'Artichauts', 'Olives'],
+        'La Chèvre Miel': ['Sauce tomate', 'Mozzarella', 'Fromage de chèvre', 'Miel', 'Noix'],
+        'La Quatre Fromages': ['Sauce tomate', 'Mozzarella', 'Gorgonzola', 'Parmesan', 'Chèvre'],
+        'La Calabrese': ['Sauce tomate', 'Mozzarella', 'Salami piquant', 'Poivrons', 'Olives'],
+        'La Calzone': ['Sauce tomate', 'Mozzarella', 'Jambon', 'Champignons', 'Œuf'],
+        'La Merguez': ['Sauce tomate', 'Mozzarella', 'Merguez', 'Poivrons', 'Oignons'],
+        'La Cannibale': ['Sauce tomate', 'Mozzarella', 'Jambon', 'Merguez', 'Bœuf haché', 'Chorizo'],
+        'La Lily-Rose': ['Sauce tomate', 'Mozzarella', 'Jambon de Parme', 'Roquette', 'Parmesan', 'Tomates cerises'],
+        'La Emmy-Lou': ['Crème fraîche', 'Mozzarella', 'Saumon fumé', 'Aneth', 'Citron', 'Oignons rouges'],
+        'La Chris': ['Sauce tomate', 'Aubergine', 'Courgettes', 'Basilic', 'Parmesan', 'Jambon cru'],
+        'La Ludmilove': ['Crème fraîche', 'Mozzarella', 'Gorgonzola', 'Noix', 'Miel', 'Poire'],
+        'La Truffe': ['Crème de truffe', 'Mozzarella', 'Champignons', 'Jambon de Parme', 'Parmesan', 'Huile de truffe'],
+      };
+
+      // Supprimer les anciens liens et ingrédients
+      await this.dataSource.query('DELETE FROM pizza_ingredients');
+      await this.dataSource.query('DELETE FROM ingredients');
+
+      // Insérer tous les ingrédients
+      const ingredientIds = new Map();
+      for (const ing of ingredients) {
+        const result = await this.dataSource.query(
+          'INSERT INTO ingredients (name, allergen) VALUES ($1, $2) RETURNING id',
+          [ing.name, ing.allergen]
+        );
+        ingredientIds.set(ing.name, result[0].id);
+      }
+
+      // Créer les liens pizza-ingrédients
+      for (const [pizzaName, ingNames] of Object.entries(pizzaIngredients)) {
+        const pizzaResult = await this.dataSource.query(
+          'SELECT id FROM pizzas WHERE name = $1',
+          [pizzaName]
+        );
+        
+        if (pizzaResult.length > 0) {
+          const pizzaId = pizzaResult[0].id;
+          for (const ingName of ingNames) {
+            const ingId = ingredientIds.get(ingName);
+            if (ingId) {
+              await this.dataSource.query(
+                'INSERT INTO pizza_ingredients (pizza_id, ingredient_id) VALUES ($1, $2)',
+                [pizzaId, ingId]
+              );
+            }
+          }
+        }
+      }
+
+      return {
+        success: true,
+        message: `Restored ${ingredients.length} ingredients and linked them to pizzas`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+  }
 }
