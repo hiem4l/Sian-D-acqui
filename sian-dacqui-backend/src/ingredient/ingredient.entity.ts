@@ -9,6 +9,12 @@ export class Ingredient {
   @Column({ unique: true })
   name: string;
 
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
+  @Column({ nullable: true })
+  imageUrl: string;
+
   @Column({ default: false })
   allergen: boolean;
 

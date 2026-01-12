@@ -351,4 +351,118 @@ SELECT setval('ingredients_id_seq', (SELECT MAX(id) FROM ingredients));
       };
     }
   }
+
+  @Post('restore-complete-ingredients')
+  async restoreCompleteIngredients() {
+    try {
+      // Tous les ingrédients avec descriptions et images
+      const ingredients = [
+        { name: 'Sauce tomate maison', description: 'Sauce tomate préparée maison', imageUrl: '/images/ingredients/tomate.svg', allergen: false },
+        { name: 'Mozzarella fior di latte', description: 'Fromage mozzarella italien', imageUrl: '/images/ingredients/mozzarella.svg', allergen: true },
+        { name: 'Basilic', description: 'Basilic frais', imageUrl: '/images/ingredients/basilic.svg', allergen: false },
+        { name: 'Jambon blanc', description: 'Jambon cuit de qualité', imageUrl: '/images/ingredients/jambon.svg', allergen: false },
+        { name: 'Jambon', description: 'Jambon cuit', imageUrl: '/images/ingredients/jambon.svg', allergen: false },
+        { name: 'Jambon cuit supérieur', description: 'Jambon cuit de qualité supérieure', imageUrl: '/images/ingredients/jambon.svg', allergen: false },
+        { name: 'Jambon de Parme', description: 'Jambon italien affiné', imageUrl: '/images/ingredients/jambon-parme.svg', allergen: false },
+        { name: 'Jambon cru (après cuisson)', description: 'Jambon cru ajouté en finition', imageUrl: '/images/ingredients/jambon-cru.svg', allergen: false },
+        { name: 'Jambon truffé', description: 'Jambon aromatisé à la truffe', imageUrl: '/images/ingredients/jambon-truffe.svg', allergen: false },
+        { name: 'Champignons', description: 'Champignons frais', imageUrl: '/images/ingredients/champignons.svg', allergen: false },
+        { name: 'Origan', description: 'Herbe aromatique italienne', imageUrl: '/images/ingredients/origan.svg', allergen: false },
+        { name: 'Olives', description: 'Olives noires ou vertes', imageUrl: '/images/ingredients/olives.svg', allergen: false },
+        { name: 'Anchois', description: 'Filets d\'anchois', imageUrl: '/images/ingredients/anchois.svg', allergen: true },
+        { name: 'Ail', description: 'Ail frais', imageUrl: '/images/ingredients/ail.svg', allergen: false },
+        { name: 'Câpres', description: 'Câpres au vinaigre', imageUrl: '/images/ingredients/capres.svg', allergen: false },
+        { name: 'Courgettes', description: 'Courgettes fraîches', imageUrl: '/images/ingredients/courgettes.svg', allergen: false },
+        { name: 'Poivrons grillés', description: 'Poivrons grillés', imageUrl: '/images/ingredients/poivrons.svg', allergen: false },
+        { name: 'Poivrons grillés à l\'huile', description: 'Poivrons grillés marinés', imageUrl: '/images/ingredients/poivrons.svg', allergen: false },
+        { name: 'Crème fraîche', description: 'Crème fraîche épaisse', imageUrl: '/images/ingredients/creme.svg', allergen: true },
+        { name: 'Chèvre', description: 'Fromage de chèvre', imageUrl: '/images/ingredients/chevre.svg', allergen: true },
+        { name: 'Miel', description: 'Miel naturel', imageUrl: '/images/ingredients/miel.svg', allergen: false },
+        { name: 'Crème de balsamique', description: 'Réduction de vinaigre balsamique', imageUrl: '/images/ingredients/balsamique.svg', allergen: false },
+        { name: 'Spianata', description: 'Salami italien épicé', imageUrl: '/images/ingredients/spianata.svg', allergen: false },
+        { name: 'Guanciale', description: 'Joue de porc italienne', imageUrl: '/images/ingredients/guanciale.svg', allergen: false },
+        { name: 'Œuf', description: 'Œuf frais', imageUrl: '/images/ingredients/oeuf.svg', allergen: true },
+        { name: 'Roquefort', description: 'Fromage bleu français', imageUrl: '/images/ingredients/roquefort.svg', allergen: true },
+        { name: 'Parmesan', description: 'Fromage italien affiné', imageUrl: '/images/ingredients/parmesan.svg', allergen: true },
+        { name: 'Merguez du boucher', description: 'Merguez artisanale', imageUrl: '/images/ingredients/merguez.svg', allergen: false },
+        { name: 'Viande hachée Angus', description: 'Bœuf Angus haché', imageUrl: '/images/ingredients/viande.svg', allergen: false },
+        { name: 'Sauce chimichuri', description: 'Sauce argentine aux herbes', imageUrl: '/images/ingredients/chimichuri.svg', allergen: false },
+        { name: 'Burrata', description: 'Mozzarella crémeuse', imageUrl: '/images/ingredients/burrata.svg', allergen: true },
+        { name: 'Mortadelle', description: 'Charcuterie italienne', imageUrl: '/images/ingredients/mortadelle.svg', allergen: false },
+        { name: 'Mesclun', description: 'Mélange de jeunes pousses', imageUrl: '/images/ingredients/mesclun.svg', allergen: false },
+        { name: 'Tomates cerises (après cuisson)', description: 'Tomates cerises fraîches', imageUrl: '/images/ingredients/tomates.svg', allergen: false },
+        { name: 'Ricotta', description: 'Fromage frais italien', imageUrl: '/images/ingredients/ricotta.svg', allergen: true },
+        { name: 'Pistou', description: 'Pâte de basilic provençale', imageUrl: '/images/ingredients/pistou.svg', allergen: false },
+        { name: 'Aubergines', description: 'Aubergines fraîches', imageUrl: '/images/ingredients/aubergines.svg', allergen: false },
+        { name: 'Roquette', description: 'Salade roquette', imageUrl: '/images/ingredients/roquette.svg', allergen: false },
+        { name: 'Ricotta di buffala', description: 'Ricotta de bufflonne', imageUrl: '/images/ingredients/ricotta-buffala.svg', allergen: true },
+        { name: 'Copeaux de truffe', description: 'Copeaux de truffe noire', imageUrl: '/images/ingredients/truffe.svg', allergen: false },
+      ];
+
+      // Supprimer les anciens ingrédients
+      await this.dataSource.query('DELETE FROM pizza_ingredients');
+      await this.dataSource.query('DELETE FROM ingredients');
+
+      // Insérer tous les ingrédients
+      const ingredientIds = new Map();
+      for (const ing of ingredients) {
+        const result = await this.dataSource.query(
+          'INSERT INTO ingredients (name, description, "imageUrl", allergen) VALUES ($1, $2, $3, $4) RETURNING id',
+          [ing.name, ing.description, ing.imageUrl, ing.allergen]
+        );
+        ingredientIds.set(ing.name, result[0].id);
+      }
+
+      // Liens pizza-ingrédients détaillés
+      const pizzaIngredients = {
+        'La Marguerite': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Basilic'],
+        'La Regina': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Jambon blanc', 'Champignons', 'Origan', 'Olives'],
+        'La Napolitaine': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Anchois', 'Ail'],
+        'La Caprese': ['Sauce tomate maison', 'Anchois', 'Câpres', 'Ail'],
+        'La Quatre Saisons': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Courgettes', 'Jambon cuit supérieur', 'Poivrons grillés à l\'huile', 'Olives', 'Origan'],
+        'La Chèvre Miel': ['Crème fraîche', 'Mozzarella fior di latte', 'Chèvre', 'Miel', 'Crème de balsamique'],
+        'La Quatre Fromages': ['Mozzarella fior di latte', 'Roquefort', 'Chèvre', 'Parmesan'],
+        'La Calabrese': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Spianata', 'Guanciale'],
+        'La Calzone': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Œuf', 'Jambon'],
+        'La Merguez': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Merguez du boucher', 'Olives'],
+        'La Cannibale': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Viande hachée Angus', 'Poivrons grillés', 'Sauce chimichuri'],
+        'La Lily-Rose': ['Sauce tomate maison', 'Burrata', 'Mortadelle', 'Mesclun', 'Tomates cerises (après cuisson)', 'Parmesan', 'Basilic', 'Olives'],
+        'La Emmy-Lou': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Courgettes', 'Ricotta', 'Pistou'],
+        'La Chris': ['Sauce tomate maison', 'Aubergines', 'Courgettes', 'Basilic', 'Parmesan', 'Jambon cru (après cuisson)'],
+        'La Ludmilove': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Roquette', 'Jambon de Parme', 'Parmesan'],
+        'La Truffe': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Jambon truffé', 'Ricotta di buffala', 'Copeaux de truffe'],
+      };
+
+      // Créer les liens
+      for (const [pizzaName, ingNames] of Object.entries(pizzaIngredients)) {
+        const pizzaResult = await this.dataSource.query(
+          'SELECT id FROM pizzas WHERE name = $1',
+          [pizzaName]
+        );
+        
+        if (pizzaResult.length > 0) {
+          const pizzaId = pizzaResult[0].id;
+          for (const ingName of ingNames) {
+            const ingId = ingredientIds.get(ingName);
+            if (ingId) {
+              await this.dataSource.query(
+                'INSERT INTO pizza_ingredients (pizza_id, ingredient_id) VALUES ($1, $2)',
+                [pizzaId, ingId]
+              );
+            }
+          }
+        }
+      }
+
+      return {
+        success: true,
+        message: `Restored ${ingredients.length} detailed ingredients with images and linked them to pizzas`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+  }
 }
