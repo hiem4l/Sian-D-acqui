@@ -26,7 +26,7 @@ export function Footer({ onNavigate }: FooterProps) {
   // ];
 
   return (
-    <footer className="bg-amber-900 border-t border-amber-800" role="contentinfo">
+    <footer className="border-t border-amber-950" style={{backgroundColor: '#3d2817'}} role="contentinfo">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* À propos */}
