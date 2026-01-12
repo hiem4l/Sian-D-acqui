@@ -1,4 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+console.log('🌐 API_BASE_URL configuré:', API_BASE_URL);
+console.log('🔧 VITE_API_URL env variable:', import.meta.env.VITE_API_URL);
 
 export interface Startup {
   id: number;
