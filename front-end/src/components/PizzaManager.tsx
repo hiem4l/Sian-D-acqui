@@ -27,6 +27,23 @@ import { GripVertical, Edit2, Trash2, Save, X, Plus, Loader2, Check, TrendingUp 
 import { ImageUploadCrop } from './ImageUploadCrop';
 import { toast } from 'sonner';
 
+// Helper function to get the correct image URL
+const getImageUrl = (imageUrl?: string) => {
+  if (!imageUrl) return null;
+  
+  // If it's a blob URL (from crop), use as-is
+  if (imageUrl.startsWith('blob:')) return imageUrl;
+  
+  // If it starts with http, use as-is
+  if (imageUrl.startsWith('http')) return imageUrl;
+  
+  // If it starts with /, it's already a relative path from public
+  if (imageUrl.startsWith('/')) return imageUrl;
+  
+  // Otherwise, assume it's a filename and add the path
+  return `/images/pizzas/${imageUrl}`;
+};
+
 interface Pizza {
   id: number;
   name: string;
@@ -95,8 +112,12 @@ function SortablePizza({
             {/* Image Upload */}
             <div className="flex items-center space-x-4">
               <ImageUploadCrop
-                currentImageUrl={editingPizza.imageUrl}
-                onImageSave={(imageUrl) => setEditingPizza({ ...editingPizza, imageUrl })}
+                currentImageUrl={getImageUrl(editingPizza.imageUrl) || undefined}
+                onImageSave={(imageUrl) => {
+                  setEditingPizza({ ...editingPizza, imageUrl });
+                  console.log('Image uploaded:', imageUrl);
+                  toast.success('Image mise à jour');
+                }}
                 alt={editingPizza.name || 'Pizza'}
                 className="w-24 h-24"
               />
@@ -216,16 +237,26 @@ function SortablePizza({
           </div>
 
           {/* Image */}
-          <ImageUploadCrop
-            currentImageUrl={pizza.imageUrl}
-            onImageSave={(imageUrl) => {
-              // Update the pizza image directly
-              handleEdit({ ...pizza, imageUrl });
-              handleSave({ ...pizza, imageUrl });
-            }}
-            alt={pizza.name}
-            className="w-16 h-16 flex-shrink-0"
-          />
+          <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+            {pizza.imageUrl ? (
+              <img 
+                src={getImageUrl(pizza.imageUrl) || undefined} 
+                alt={pizza.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  console.log('Image failed to load for pizza:', pizza.name, 'URL:', pizza.imageUrl);
+                  const parent = e.currentTarget.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-2xl">🍕</div>';
+                  }
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400 text-2xl">
+                🍕
+              </div>
+            )}
+          </div>
 
           {/* Info */}
           <div className="flex-1">
@@ -376,6 +407,10 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
     
     try {
       const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      
+      // Log pour debug
+      console.log('Saving pizza with image:', updatedPizza.imageUrl);
+      
       const response = await fetch(`${API_BASE}/pizzas/${updatedPizza.id}`, {
         method: 'PATCH',
         headers: {
@@ -388,7 +423,7 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
           vegetarian: updatedPizza.vegetarian,
           available: updatedPizza.available,
           preparationTime: updatedPizza.preparationTime,
-          imageUrl: updatedPizza.imageUrl
+          imageUrl: updatedPizza.imageUrl || null
         }),
       });
 
@@ -398,6 +433,8 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
         setEditingPizza({});
         toast.success(`${updatedPizza.name} sauvegardée !`, { id: `save-${pizzaId}` });
       } else {
+        const errorData = await response.text();
+        console.error('Save error:', errorData);
         throw new Error('Erreur de sauvegarde');
       }
     } catch (error) {
