@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { DessertService } from './dessert.service';
+import { CreateDessertDto, UpdateDessertDto } from './dto/dessert.dto';
 
 @Controller('desserts')
 export class DessertController {
@@ -7,8 +8,8 @@ export class DessertController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() dessert: any) {
-    return this.dessertService.create(dessert);
+  create(@Body() createDessertDto: CreateDessertDto) {
+    return this.dessertService.create(createDessertDto);
   }
 
   @Get()
@@ -27,8 +28,8 @@ export class DessertController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dessert: any) {
-    return this.dessertService.update(+id, dessert);
+  update(@Param('id') id: string, @Body() updateDessertDto: UpdateDessertDto) {
+    return this.dessertService.update(+id, updateDessertDto);
   }
 
   @Delete(':id')

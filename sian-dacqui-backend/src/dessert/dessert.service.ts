@@ -11,7 +11,7 @@ export class DessertService {
   ) {}
 
   findAll(): Promise<Dessert[]> {
-    return this.dessertRepository.find();
+    return this.dessertRepository.find({ order: { displayOrder: 'ASC', id: 'ASC' } });
   }
 
   findOne(id: number): Promise<Dessert> {
@@ -19,7 +19,10 @@ export class DessertService {
   }
 
   findAvailable(): Promise<Dessert[]> {
-    return this.dessertRepository.find({ where: { available: true } });
+    return this.dessertRepository.find({ 
+      where: { available: true },
+      order: { displayOrder: 'ASC', id: 'ASC' }
+    });
   }
 
   create(dessert: Partial<Dessert>): Promise<Dessert> {

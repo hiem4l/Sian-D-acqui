@@ -20,6 +20,9 @@ export class Dessert {
   @Column({ length: 255, nullable: true })
   imageUrl: string;
 
+  @Column({ type: 'int', default: 0 })
+  displayOrder: number; // Pour contrôler l'ordre d'affichage
+
   @CreateDateColumn()
   createdAt: Date;
 

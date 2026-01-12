@@ -20,8 +20,14 @@ export class Boisson {
   @Column({ length: 50, nullable: true })
   size: string; // ex: "33cl", "50cl", "1L"
 
+  @Column({ length: 50, default: 'AUTRE' })
+  category: string; // SODAS, BIERE, VINS, CAFE, AUTRE
+
   @Column({ length: 255, nullable: true })
   imageUrl: string;
+
+  @Column({ type: 'int', default: 0 })
+  displayOrder: number; // Pour contrôler l'ordre d'affichage
 
   @CreateDateColumn()
   createdAt: Date;

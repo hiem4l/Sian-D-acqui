@@ -11,7 +11,7 @@ export class BoissonService {
   ) {}
 
   findAll(): Promise<Boisson[]> {
-    return this.boissonRepository.find();
+    return this.boissonRepository.find({ order: { displayOrder: 'ASC', id: 'ASC' } });
   }
 
   findOne(id: number): Promise<Boisson> {
@@ -19,7 +19,17 @@ export class BoissonService {
   }
 
   findAvailable(): Promise<Boisson[]> {
-    return this.boissonRepository.find({ where: { available: true } });
+    return this.boissonRepository.find({ 
+      where: { available: true },
+      order: { displayOrder: 'ASC', id: 'ASC' }
+    });
+  }
+
+  findByCategory(category: string): Promise<Boisson[]> {
+    return this.boissonRepository.find({ 
+      where: { category: category.toUpperCase() },
+      order: { displayOrder: 'ASC', id: 'ASC' }
+    });
   }
 
   create(boisson: Partial<Boisson>): Promise<Boisson> {
