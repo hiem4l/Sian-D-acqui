@@ -18,11 +18,31 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
   const pizzas = allPizzas.filter(pizza => {
     if (pizzaFilter === 'all') return true;
     if (pizzaFilter === 'vegetarian') return pizza.vegetarian;
-    // Pour les autres filtres, on pourrait ajouter une logique basée sur les ingrédients
-    // Pour l'instant, on retourne toutes les pizzas non-végétariennes pour beef/chicken/egg/fish
-    if (pizzaFilter === 'beef' || pizzaFilter === 'chicken' || pizzaFilter === 'egg' || pizzaFilter === 'fish') {
-      return !pizza.vegetarian;
+    
+    // Filtrage par ingrédients spécifiques basé sur les noms de pizzas
+    const pizzaName = pizza.name.toLowerCase();
+    
+    if (pizzaFilter === 'fish') {
+      // Pizzas avec du poisson (anchois): La Napo, La Caprese
+      return pizzaName.includes('napo') || pizzaName.includes('caprese');
     }
+    
+    if (pizzaFilter === 'egg') {
+      // Pizzas avec œuf: La Calzone
+      return pizzaName.includes('calzone');
+    }
+    
+    if (pizzaFilter === 'beef') {
+      // Pizzas avec viande/bœuf: Merguez, Cannibale
+      return pizzaName.includes('merguez') || pizzaName.includes('cannibale');
+    }
+    
+    if (pizzaFilter === 'chicken') {
+      // Pour l'instant pas de pizzas au poulet, on retourne un tableau vide
+      // À activer quand il y aura des pizzas au poulet
+      return false;
+    }
+    
     return true;
   });
 
