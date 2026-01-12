@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Leaf, Beef, Egg, Fish } from "lucide-react";
+import { Leaf, Beef, Egg, Fish, RefreshCw } from "lucide-react";
 import { usePizzaContext } from "../contexts/PizzaContext";
 
 interface MenuPageProps {
@@ -12,7 +12,7 @@ type PizzaFilter = 'all' | 'vegetarian' | 'beef' | 'egg' | 'fish';
 export function MenuPage({ onNavigate }: MenuPageProps) {
   const [activeCategory, setActiveCategory] = useState<'pizzas' | 'desserts' | 'boissons'>('pizzas');
   const [pizzaFilter, setPizzaFilter] = useState<PizzaFilter>('all');
-  const { pizzas: allPizzas, loading, error } = usePizzaContext();
+  const { pizzas: allPizzas, loading, error, refetch } = usePizzaContext();
 
   // Filtrer les pizzas selon le filtre actif
   const pizzas = allPizzas.filter(pizza => {
@@ -134,14 +134,24 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
         {/* État de chargement */}
         {activeCategory === 'pizzas' && loading && (
           <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-lg text-gray-600">Chargement des pizzas...</p>
+            <p className="text-sm text-gray-500 mt-2">Cela peut prendre quelques secondes si le serveur se réveille...</p>
           </div>
         )}
 
-        {/* Message d'erreur */}
-        {activeCategory === 'pizzas' && error && (
+        {/* Message d'erreur avec bouton retry */}
+        {activeCategory === 'pizzas' && error && !loading && (
           <div className="text-center py-12">
             <p className="text-lg text-red-600 mb-4">Erreur: {error}</p>
+            <Button 
+              onClick={() => refetch()}
+              className="flex items-center gap-2 mx-auto"
+              variant="outline"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Réessayer
+            </Button>
           </div>
         )}
 

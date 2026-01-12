@@ -350,18 +350,37 @@ export function useNews() {
 }
 
 // Pizzas API
-// Helper function to retry failed requests
-async function fetchWithRetry(url: string, retries = 3, delay = 1000): Promise<Response> {
+// Helper function to retry failed requests with exponential backoff
+async function fetchWithRetry(url: string, retries = 5, initialDelay = 2000): Promise<Response> {
   for (let i = 0; i < retries; i++) {
     try {
+      console.log(`🔄 Tentative ${i + 1}/${retries} pour: ${url}`);
       const response = await fetch(url);
-      if (response.ok || i === retries - 1) {
+      
+      if (response.ok) {
+        console.log(`✅ Succès après ${i + 1} tentative(s)`);
         return response;
       }
-      // Wait before retrying
+      
+      if (i === retries - 1) {
+        console.log(`❌ Échec après ${retries} tentatives`);
+        return response;
+      }
+      
+      // Exponential backoff: 2s, 4s, 8s, 16s
+      const delay = initialDelay * Math.pow(2, i);
+      console.log(`⏳ Attente de ${delay}ms avant nouvelle tentative...`);
       await new Promise(resolve => setTimeout(resolve, delay));
+      
     } catch (error) {
-      if (i === retries - 1) throw error;
+      console.error(`💥 Erreur tentative ${i + 1}:`, error);
+      
+      if (i === retries - 1) {
+        throw error;
+      }
+      
+      const delay = initialDelay * Math.pow(2, i);
+      console.log(`⏳ Attente de ${delay}ms avant nouvelle tentative...`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
