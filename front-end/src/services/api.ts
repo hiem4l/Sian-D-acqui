@@ -1,66 +1,14 @@
+import { useState, useEffect } from 'react';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 console.log('🌐 API_BASE_URL configuré:', API_BASE_URL);
 console.log('🔧 VITE_API_URL env variable:', import.meta.env.VITE_API_URL);
 
-export interface Startup {
-  id: number;
-  apiId: number;
-  name: string;
-  description: string | null;
-  legalStatus: string;
-  address: string;
-  email: string;
-  phone: string;
-  createdAt: string | null;
-  websiteUrl: string | null;
-  socialMediaUrl: string | null;
-  projectStatus: string | null;
-  needs: string | null;
-  sector: string;
-  maturity: string;
-}
-
-export interface Founder {
-  id: number;
-  apiId: number;
-  name: string;
-  startupId: number;
-}
-
-export interface News {
-  id: number;
-  title: string;
-  content: string;
-  excerpt?: string;
-  author: string;
-  published_at: string;
-  category?: string;
-  image_url?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface Event {
-  id: number;
-  title: string;
-  description: string;
-  start_date: string;
-  end_date?: string;
-  location: string;
-  organizer: string;
-  category?: string;
-  max_participants?: number;
-  registration_url?: string;
-  image_url?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
+// Types pour la pizzeria
 export interface Ingredient {
   id: number;
   name: string;
-  price: number;
-  available: boolean;
+  allergen: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -69,288 +17,41 @@ export interface Pizza {
   id: number;
   name: string;
   description?: string;
-  price: number;
+  price: string;
   size: string;
   available: boolean;
   vegetarian: boolean;
-  imageUrl?: string;
+  imageUrl?: string | null;
   preparationTime: number;
   ingredients: Ingredient[];
   createdAt: string;
   updatedAt: string;
 }
 
-// Startups API
-export const startupsAPI = {
-  async getAll(): Promise<Startup[]> {
-    const response = await fetch(`${API_BASE_URL}/startups`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch startups');
-    }
-    return response.json();
-  },
-
-  async getById(id: number): Promise<Startup> {
-    const response = await fetch(`${API_BASE_URL}/startups/${id}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch startup');
-    }
-    return response.json();
-  },
-
-  async create(startup: Omit<Startup, 'id' | 'created_at' | 'updated_at'>): Promise<Startup> {
-    const response = await fetch(`${API_BASE_URL}/startups`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(startup),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to create startup');
-    }
-    return response.json();
-  },
-
-  async update(id: number, startup: Partial<Startup>): Promise<Startup> {
-    const response = await fetch(`${API_BASE_URL}/startups/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(startup),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update startup');
-    }
-    return response.json();
-  },
-
-  async delete(id: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/startups/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error('Failed to delete startup');
-    }
-  },
-};
-
-// News API
-export const newsAPI = {
-  async getAll(): Promise<News[]> {
-    const response = await fetch(`${API_BASE_URL}/news`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch news');
-    }
-    return response.json();
-  },
-
-  async getById(id: number): Promise<News> {
-    const response = await fetch(`${API_BASE_URL}/news/${id}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch news item');
-    }
-    return response.json();
-  },
-
-  async create(news: Omit<News, 'id' | 'created_at' | 'updated_at'>): Promise<News> {
-    const response = await fetch(`${API_BASE_URL}/news`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(news),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to create news');
-    }
-    return response.json();
-  },
-
-  async update(id: number, news: Partial<News>): Promise<News> {
-    const response = await fetch(`${API_BASE_URL}/news/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(news),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update news');
-    }
-    return response.json();
-  },
-
-  async delete(id: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/news/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error('Failed to delete news');
-    }
-  },
-};
-
-// Events API
-export const eventsAPI = {
-  async getAll(): Promise<Event[]> {
-    const response = await fetch(`${API_BASE_URL}/events`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch events');
-    }
-    return response.json();
-  },
-
-  async getById(id: number): Promise<Event> {
-    const response = await fetch(`${API_BASE_URL}/events/${id}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch event');
-    }
-    return response.json();
-  },
-
-  async create(event: Omit<Event, 'id' | 'created_at' | 'updated_at'>): Promise<Event> {
-    const response = await fetch(`${API_BASE_URL}/events`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(event),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to create event');
-    }
-    return response.json();
-  },
-
-  async update(id: number, event: Partial<Event>): Promise<Event> {
-    const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(event),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update event');
-    }
-    return response.json();
-  },
-
-  async delete(id: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error('Failed to delete event');
-    }
-  },
-};
-
-export const foundersAPI = {
-  async getAll(): Promise<Founder[]> {
-    const response = await fetch(`${API_BASE_URL}/founders`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch founders");
-    }
-    return response.json();
-  },
-
-  async getById(id: number): Promise<Founder> {
-    const response = await fetch(`${API_BASE_URL}/founders/${id}`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch founder");
-    }
-    return response.json();
-  }
-};
-
-export function useFounders() {
-  const [founders, setFounders] = useState<Founder[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchFounders() {
-      try {
-        setLoading(true);
-        const data = await foundersAPI.getAll();
-        setFounders(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchFounders();
-  }, []);
-
-  return { founders, loading, error };
+export interface Dessert {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  available: boolean;
+  imageUrl?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// General API utility
-export const api = {
-  startups: startupsAPI,
-  news: newsAPI,
-  events: eventsAPI,
-  founders: foundersAPI
-};
-
-// React hooks for API data
-import { useState, useEffect } from 'react';
-
-export function useStartups() {
-  const [startups, setStartups] = useState<Startup[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchStartups() {
-      try {
-        setLoading(true);
-        const data = await startupsAPI.getAll();
-        setStartups(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchStartups();
-  }, []);
-
-  return { startups, loading, error };
+export interface Boisson {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  category: 'SODAS' | 'JUS' | 'VINS' | 'BIERES' | 'APERITIFS' | 'DIGESTIFS' | 'AUTRES';
+  available: boolean;
+  imageUrl?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export function useNews() {
-  const [news, setNews] = useState<News[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchNews() {
-      try {
-        setLoading(true);
-        const data = await newsAPI.getAll();
-        setNews(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchNews();
-  }, []);
-
-  return { news, loading, error };
-}
-
-// Pizzas API
-// Helper function to retry failed requests with exponential backoff
+// Helper function with retry logic
 async function fetchWithRetry(url: string, retries = 5, initialDelay = 2000): Promise<Response> {
   for (let i = 0; i < retries; i++) {
     try {
@@ -359,15 +60,13 @@ async function fetchWithRetry(url: string, retries = 5, initialDelay = 2000): Pr
       
       if (response.ok) {
         console.log(`✅ Succès après ${i + 1} tentative(s)`);
+        console.log(`📡 Response status: ${response.status} ${response.statusText}`);
+        console.log(`📋 Response headers:`, Object.fromEntries(response.headers.entries()));
         return response;
       }
       
-      if (i === retries - 1) {
-        console.log(`❌ Échec après ${retries} tentatives`);
-        return response;
-      }
+      if (i === retries - 1) return response;
       
-      // Exponential backoff: 2s, 4s, 8s, 16s
       const delay = initialDelay * Math.pow(2, i);
       console.log(`⏳ Attente de ${delay}ms avant nouvelle tentative...`);
       await new Promise(resolve => setTimeout(resolve, delay));
@@ -375,9 +74,7 @@ async function fetchWithRetry(url: string, retries = 5, initialDelay = 2000): Pr
     } catch (error) {
       console.error(`💥 Erreur tentative ${i + 1}:`, error);
       
-      if (i === retries - 1) {
-        throw error;
-      }
+      if (i === retries - 1) throw error;
       
       const delay = initialDelay * Math.pow(2, i);
       console.log(`⏳ Attente de ${delay}ms avant nouvelle tentative...`);
@@ -387,94 +84,69 @@ async function fetchWithRetry(url: string, retries = 5, initialDelay = 2000): Pr
   throw new Error('Max retries reached');
 }
 
+// Pizzas API
 export const pizzasAPI = {
   async getAll(): Promise<Pizza[]> {
     console.log(`🍕 Fetching all pizzas from: ${API_BASE_URL}/pizzas`);
     try {
       const response = await fetchWithRetry(`${API_BASE_URL}/pizzas`);
-      console.log(`📡 Response status: ${response.status} ${response.statusText}`);
-      console.log(`📋 Response headers:`, Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`❌ Error response body:`, errorText);
-        throw new Error(`Failed to fetch pizzas: ${response.status} ${response.statusText} - ${errorText}`);
+        throw new Error(`Failed to fetch pizzas: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json();
       console.log(`✅ Successfully fetched ${data.length} pizzas`);
       return data;
     } catch (error) {
-      console.error(`💥 Fetch error:`, error);
-      throw error;
-    }
-  },
-
-  async getAvailable(): Promise<Pizza[]> {
-    console.log(`🍕 Fetching available pizzas from: ${API_BASE_URL}/pizzas/available`);
-    try {
-      const response = await fetchWithRetry(`${API_BASE_URL}/pizzas/available`);
-      console.log(`📡 Response status: ${response.status} ${response.statusText}`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`❌ Error response body:`, errorText);
-        throw new Error(`Failed to fetch available pizzas: ${response.status} ${response.statusText} - ${errorText}`);
-      }
-      
-      const data = await response.json();
-      console.log(`✅ Successfully fetched ${data.length} available pizzas`);
-      return data;
-    } catch (error) {
-      console.error(`💥 Fetch error:`, error);
-      throw error;
-    }
-  },
-
-  async getVegetarian(): Promise<Pizza[]> {
-    console.log(`🍕 Fetching vegetarian pizzas from: ${API_BASE_URL}/pizzas/vegetarian`);
-    try {
-      const response = await fetchWithRetry(`${API_BASE_URL}/pizzas/vegetarian`);
-      console.log(`📡 Response status: ${response.status} ${response.statusText}`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`❌ Error response body:`, errorText);
-        throw new Error(`Failed to fetch vegetarian pizzas: ${response.status} ${response.statusText} - ${errorText}`);
-      }
-      
-      const data = await response.json();
-      console.log(`✅ Successfully fetched ${data.length} vegetarian pizzas`);
-      return data;
-    } catch (error) {
-      console.error(`💥 Fetch error:`, error);
+      console.error('💥 Fetch error:', error);
       throw error;
     }
   },
 
   async getById(id: number): Promise<Pizza> {
-    console.log(`🍕 Fetching pizza #${id} from: ${API_BASE_URL}/pizzas/${id}`);
-    try {
-      const response = await fetchWithRetry(`${API_BASE_URL}/pizzas/${id}`);
-      console.log(`📡 Response status: ${response.status} ${response.statusText}`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`❌ Error response body:`, errorText);
-        throw new Error(`Failed to fetch pizza: ${response.status} ${response.statusText} - ${errorText}`);
-      }
-      
-      const data = await response.json();
-      console.log(`✅ Successfully fetched pizza:`, data.name);
-      return data;
-    } catch (error) {
-      console.error(`💥 Fetch error:`, error);
-      throw error;
+    const response = await fetch(`${API_BASE_URL}/pizzas/${id}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch pizza');
     }
-  },
+    return response.json();
+  }
 };
 
-export function usePizzas(vegetarianOnly: boolean = false) {
+// Desserts API
+export const dessertsAPI = {
+  async getAll(): Promise<Dessert[]> {
+    const response = await fetchWithRetry(`${API_BASE_URL}/desserts`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch desserts');
+    }
+    return response.json();
+  }
+};
+
+// Boissons API
+export const boissonsAPI = {
+  async getAll(): Promise<Boisson[]> {
+    const response = await fetchWithRetry(`${API_BASE_URL}/boissons`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch boissons');
+    }
+    return response.json();
+  },
+
+  async getByCategory(category: string): Promise<Boisson[]> {
+    const response = await fetch(`${API_BASE_URL}/boissons/category/${category}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch boissons by category');
+    }
+    return response.json();
+  }
+};
+
+// React hooks
+export function usePizzas() {
   const [pizzas, setPizzas] = useState<Pizza[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -482,43 +154,9 @@ export function usePizzas(vegetarianOnly: boolean = false) {
   useEffect(() => {
     async function fetchPizzas() {
       try {
-        console.log(`🔄 usePizzas: Starting fetch (vegetarianOnly=${vegetarianOnly})`);
         setLoading(true);
-        setError(null);
-        
-        const data = vegetarianOnly 
-          ? await pizzasAPI.getVegetarian()
-          : await pizzasAPI.getAvailable();
-        
-        console.log(`🔄 usePizzas: Setting ${data.length} pizzas in state`);
+        const data = await pizzasAPI.getAll();
         setPizzas(data);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        console.error(`🔄 usePizzas: Error caught:`, errorMessage, err);
-        setError(errorMessage);
-      } finally {
-        setLoading(false);
-        console.log(`🔄 usePizzas: Fetch complete`);
-      }
-    }
-
-    fetchPizzas();
-  }, [vegetarianOnly]);
-
-  return { pizzas, loading, error };
-}
-
-export function useEvents() {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchEvents() {
-      try {
-        setLoading(true);
-        const data = await eventsAPI.getAll();
-        setEvents(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
@@ -526,8 +164,56 @@ export function useEvents() {
       }
     }
 
-    fetchEvents();
+    fetchPizzas();
   }, []);
 
-  return { events, loading, error };
+  return { pizzas, loading, error };
+}
+
+export function useDesserts() {
+  const [desserts, setDesserts] = useState<Dessert[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchDesserts() {
+      try {
+        setLoading(true);
+        const data = await dessertsAPI.getAll();
+        setDesserts(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDesserts();
+  }, []);
+
+  return { desserts, loading, error };
+}
+
+export function useBoissons() {
+  const [boissons, setBoissons] = useState<Boisson[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchBoissons() {
+      try {
+        setLoading(true);
+        const data = await boissonsAPI.getAll();
+        setBoissons(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchBoissons();
+  }, []);
+
+  return { boissons, loading, error };
 }
