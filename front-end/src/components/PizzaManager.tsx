@@ -268,6 +268,9 @@ function SortablePizza({
 
 export function PizzaManager({ onBack }: PizzaManagerProps) {
   const [pizzas, setPizzas] = useState<Pizza[]>([]);
+  const [originalOrder, setOriginalOrder] = useState<number[]>([]);
+  const [orderChanged, setOrderChanged] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingPizza, setEditingPizza] = useState<Partial<Pizza>>({});
@@ -290,6 +293,8 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
       const response = await fetch(`${API_BASE}/pizzas`);
       const data = await response.json();
       setPizzas(data);
+      setOriginalOrder(data.map((p: Pizza) => p.id));
+      setOrderChanged(false);
     } catch (error) {
       console.error('Erreur lors du chargement des pizzas:', error);
     } finally {
@@ -297,33 +302,53 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
     }
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      const newPizzas = setPizzas((items) => {
+      setPizzas((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over?.id);
-        return arrayMove(items, oldIndex, newIndex);
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+        
+        // Vérifier si l'ordre a changé par rapport à l'original
+        const newIds = newOrder.map(p => p.id);
+        const hasChanged = !originalOrder.every((id, index) => id === newIds[index]);
+        setOrderChanged(hasChanged);
+        
+        return newOrder;
       });
-
-      // Sauvegarder le nouvel ordre sur le serveur
-      try {
-        const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-        const pizzaIds = pizzas.map(p => p.id);
-        await fetch(`${API_BASE}/pizzas/reorder`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ pizzaIds }),
-        });
-      } catch (error) {
-        console.error('Erreur lors de la sauvegarde de l\'ordre:', error);
-        // En cas d'erreur, on recharge les pizzas pour restaurer l'ordre original
-        fetchPizzas();
-      }
     }
+  };
+
+  const saveOrder = async () => {
+    setSaving(true);
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const pizzaIds = pizzas.map(p => p.id);
+      await fetch(`${API_BASE}/pizzas/reorder`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pizzaIds }),
+      });
+      
+      setOriginalOrder(pizzaIds);
+      setOrderChanged(false);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde de l\'ordre:', error);
+      alert('Erreur lors de la sauvegarde de l\'ordre');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const cancelOrder = () => {
+    // Restaurer l'ordre original
+    const originalPizzas = originalOrder.map(id => pizzas.find(p => p.id === id)).filter(Boolean) as Pizza[];
+    setPizzas(originalPizzas);
+    setOrderChanged(false);
   };
 
   const handleEdit = (pizza: Pizza) => {
@@ -507,6 +532,35 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
       {pizzas.length === 0 && (
         <div className="text-center py-12 text-gray-500">
           Aucune pizza trouvée. Créez votre première pizza !
+        </div>
+      )}
+
+      {/* Bouton de sauvegarde de l'ordre */}
+      {orderChanged && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-lg p-4 border">
+          <div className="flex items-center space-x-3">
+            <div className="text-sm text-gray-600">
+              L'ordre des pizzas a été modifié
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={cancelOrder}
+                disabled={saving}
+              >
+                Annuler
+              </Button>
+              <Button
+                size="sm"
+                onClick={saveOrder}
+                disabled={saving}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {saving ? 'Sauvegarde...' : 'Sauvegarder l\'ordre'}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
