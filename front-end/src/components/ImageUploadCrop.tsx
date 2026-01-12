@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import ReactCrop, { Crop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
@@ -24,6 +24,13 @@ export function ImageUploadCrop({
   const [croppedImageUrl, setCroppedImageUrl] = useState<string>('');
   const imgRef = useRef<HTMLImageElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reset cropped image when currentImageUrl changes
+  React.useEffect(() => {
+    if (currentImageUrl !== croppedImageUrl) {
+      setCroppedImageUrl('');
+    }
+  }, [currentImageUrl]);
 
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -124,11 +131,22 @@ export function ImageUploadCrop({
         className={`${className} bg-gray-100 rounded-lg overflow-hidden relative cursor-pointer group hover:bg-gray-200 transition-colors`}
         onClick={openFileDialog}
       >
-        {currentImageUrl || croppedImageUrl ? (
+        {croppedImageUrl || currentImageUrl ? (
           <img 
             src={croppedImageUrl || currentImageUrl} 
             alt={alt}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              console.log('ImageUploadCrop: Image failed to load:', croppedImageUrl || currentImageUrl);
+              e.currentTarget.style.display = 'none';
+              const parent = e.currentTarget.parentElement;
+              if (parent && !parent.querySelector('.upload-fallback')) {
+                const fallback = document.createElement('div');
+                fallback.className = 'upload-fallback w-full h-full flex items-center justify-center text-gray-400';
+                fallback.textContent = '🍕';
+                parent.appendChild(fallback);
+              }
+            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">

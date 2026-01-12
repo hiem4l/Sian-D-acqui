@@ -29,7 +29,7 @@ import { toast } from 'sonner';
 
 // Helper function to get the correct image URL
 const getImageUrl = (imageUrl?: string) => {
-  if (!imageUrl) return null;
+  if (!imageUrl || imageUrl.trim() === '') return null;
   
   // If it's a blob URL (from crop), use as-is
   if (imageUrl.startsWith('blob:')) return imageUrl;
@@ -111,16 +111,30 @@ function SortablePizza({
           <div className="space-y-4">
             {/* Image Upload */}
             <div className="flex items-center space-x-4">
-              <ImageUploadCrop
-                currentImageUrl={getImageUrl(editingPizza.imageUrl) || undefined}
-                onImageSave={(imageUrl) => {
-                  setEditingPizza({ ...editingPizza, imageUrl });
-                  console.log('Image uploaded:', imageUrl);
-                  toast.success('Image mise à jour');
-                }}
-                alt={editingPizza.name || 'Pizza'}
-                className="w-24 h-24"
-              />
+              <div className="relative">
+                <ImageUploadCrop
+                  currentImageUrl={getImageUrl(editingPizza.imageUrl) || undefined}
+                  onImageSave={(imageUrl) => {
+                    setEditingPizza({ ...editingPizza, imageUrl });
+                    console.log('Image uploaded:', imageUrl);
+                    toast.success('Image mise à jour');
+                  }}
+                  alt={editingPizza.name || 'Pizza'}
+                  className="w-24 h-24"
+                />
+                {editingPizza.imageUrl && (
+                  <button
+                    onClick={() => {
+                      setEditingPizza({ ...editingPizza, imageUrl: '' });
+                      toast.success('Image supprimée');
+                    }}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                    title="Supprimer l'image"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
               <div className="flex-1 space-y-2">
                 <Input
                   value={editingPizza.name || ''}
@@ -238,17 +252,28 @@ function SortablePizza({
 
           {/* Image */}
           <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
-            {pizza.imageUrl ? (
+            {getImageUrl(pizza.imageUrl) ? (
               <img 
-                src={getImageUrl(pizza.imageUrl) || undefined} 
+                src={getImageUrl(pizza.imageUrl)!} 
                 alt={pizza.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   console.log('Image failed to load for pizza:', pizza.name, 'URL:', pizza.imageUrl);
-                  const parent = e.currentTarget.parentElement;
-                  if (parent) {
-                    parent.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400 text-2xl">🍕</div>';
+                  const target = e.currentTarget;
+                  const parent = target.parentElement;
+                  target.style.display = 'none';
+                  if (parent && !parent.querySelector('.fallback-emoji')) {
+                    const fallback = document.createElement('div');
+                    fallback.className = 'fallback-emoji w-full h-full flex items-center justify-center text-gray-400 text-2xl';
+                    fallback.textContent = '🍕';
+                    parent.appendChild(fallback);
                   }
+                }}
+                onLoad={() => {
+                  // Remove any fallback when image loads successfully
+                  const parent = (document.activeElement as HTMLImageElement)?.parentElement;
+                  const fallback = parent?.querySelector('.fallback-emoji');
+                  if (fallback) fallback.remove();
                 }}
               />
             ) : (
@@ -428,7 +453,10 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
       });
 
       if (response.ok) {
-        await fetchPizzas();
+        // Mettre à jour seulement la pizza modifiée dans l'état local
+        setPizzas(prev => prev.map(p => 
+          p.id === updatedPizza.id ? { ...p, ...updatedPizza } : p
+        ));
         setEditingId(null);
         setEditingPizza({});
         toast.success(`${updatedPizza.name} sauvegardée !`, { id: `save-${pizzaId}` });
