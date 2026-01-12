@@ -415,7 +415,7 @@ SELECT setval('ingredients_id_seq', (SELECT MAX(id) FROM ingredients));
 
       // Liens pizza-ingrédients détaillés
       const pizzaIngredients = {
-        'La Marguerite': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Basilic'],
+        'La Marguerite': ['Sauce tomate maison', 'Mozzarella fior di latte'],
         'La Regina': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Jambon blanc', 'Champignons', 'Origan', 'Olives'],
         'La Napolitaine': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Anchois', 'Ail'],
         'La Caprese': ['Sauce tomate maison', 'Anchois', 'Câpres', 'Ail'],
@@ -426,11 +426,11 @@ SELECT setval('ingredients_id_seq', (SELECT MAX(id) FROM ingredients));
         'La Calzone': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Œuf', 'Jambon'],
         'La Merguez': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Merguez du boucher', 'Olives'],
         'La Cannibale': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Viande hachée Angus', 'Poivrons grillés', 'Sauce chimichuri'],
-        'La Lily-Rose': ['Sauce tomate maison', 'Burrata', 'Mortadelle', 'Mesclun', 'Tomates cerises (après cuisson)', 'Parmesan', 'Basilic', 'Olives'],
+        'La Lily-Rose': ['Sauce tomate maison', 'Tomates cerises (après cuisson)', 'Mesclun', 'Burrata', 'Parmesan', 'Mortadelle', 'Basilic', 'Olives'],
         'La Emmy-Lou': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Courgettes', 'Ricotta', 'Pistou'],
         'La Chris': ['Sauce tomate maison', 'Aubergines', 'Courgettes', 'Basilic', 'Parmesan', 'Jambon cru (après cuisson)'],
-        'La Ludmilove': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Roquette', 'Jambon de Parme', 'Parmesan'],
-        'La Truffe': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Jambon truffé', 'Ricotta di buffala', 'Copeaux de truffe'],
+        'La Ludmilove': ['Sauce tomate maison', 'Mozzarella fior di latte', 'Roquette', 'Jambon de Parme'],
+        'La Truffe': ['Crème fraîche', 'Mozzarella fior di latte', 'Jambon truffé', 'Ricotta di buffala', 'Copeaux de truffe'],
       };
 
       // Créer les liens
