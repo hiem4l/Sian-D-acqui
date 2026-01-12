@@ -106,22 +106,22 @@ export interface PizzaAllergens {
 
 // Mapping des pizzas avec leurs allergènes
 export const pizzaAllergensMap: PizzaAllergens[] = [
-  { pizzaId: "1", allergens: ['gluten', 'lactose'] }, // La Marguerite
-  { pizzaId: "2", allergens: ['gluten', 'lactose'] }, // La Regina
-  { pizzaId: "3", allergens: ['gluten', 'lactose', 'fruits-de-mer'] }, // La Napo
-  { pizzaId: "4", allergens: ['gluten', 'lactose', 'fruits-de-mer'] }, // La Caprese
-  { pizzaId: "5", allergens: ['gluten', 'lactose'] }, // La 4 Saisons
-  { pizzaId: "6", allergens: ['gluten', 'lactose'] }, // La Chevre Miel
-  { pizzaId: "7", allergens: ['gluten', 'lactose'] }, // La Calabrese
-  { pizzaId: "8", allergens: ['gluten', 'lactose', 'oeufs'] }, // La Calzone
-  { pizzaId: "9", allergens: ['gluten', 'lactose'] }, // La 4 Fromages
-  { pizzaId: "10", allergens: ['gluten', 'lactose'] }, // La Merguez
-  { pizzaId: "11", allergens: ['gluten', 'lactose'] }, // La Cannibale
-  { pizzaId: "12", allergens: ['gluten', 'lactose'] }, // La Lily-Rose
-  { pizzaId: "13", allergens: ['gluten', 'lactose'] }, // La Emmy-Lou
-  { pizzaId: "14", allergens: ['gluten', 'lactose'] }, // La Chris
-  { pizzaId: "15", allergens: ['gluten', 'lactose'] }, // La Ludmilove
-  { pizzaId: "16", allergens: ['gluten', 'lactose'] }, // La Truffe
+  { pizzaId: "50", allergens: ['gluten', 'lactose'] }, // La Marguerite
+  { pizzaId: "51", allergens: ['gluten', 'lactose'] }, // La Regina
+  { pizzaId: "52", allergens: ['gluten', 'lactose', 'fruits-de-mer'] }, // La Napolitaine
+  { pizzaId: "53", allergens: ['gluten', 'lactose', 'fruits-de-mer'] }, // La Caprese
+  { pizzaId: "54", allergens: ['gluten', 'lactose'] }, // La Quatre Saisons
+  { pizzaId: "55", allergens: ['gluten', 'lactose'] }, // La Chevre Miel
+  { pizzaId: "56", allergens: ['gluten', 'lactose'] }, // La Calabrese
+  { pizzaId: "57", allergens: ['gluten', 'lactose', 'oeufs'] }, // La Calzone
+  { pizzaId: "58", allergens: ['gluten', 'lactose'] }, // La 4 Fromages
+  { pizzaId: "59", allergens: ['gluten', 'lactose'] }, // La Merguez
+  { pizzaId: "60", allergens: ['gluten', 'lactose'] }, // La Cannibale
+  { pizzaId: "61", allergens: ['gluten', 'lactose'] }, // La Lily-Rose
+  { pizzaId: "62", allergens: ['gluten', 'lactose'] }, // La Emmy-Lou
+  { pizzaId: "63", allergens: ['gluten', 'lactose'] }, // La Chris
+  { pizzaId: "64", allergens: ['gluten', 'lactose'] }, // La Ludmilove
+  { pizzaId: "65", allergens: ['gluten', 'lactose'] }, // La Truffe
 ];
 
 export function getPizzaAllergens(pizzaId: string): AllergenType[] {
