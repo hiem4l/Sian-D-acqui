@@ -23,7 +23,8 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Edit2, Trash2, Save, X, Plus, Upload } from 'lucide-react';
+import { GripVertical, Edit2, Trash2, Save, X, Plus } from 'lucide-react';
+import { ImageUploadCrop } from './ImageUploadCrop';
 
 interface Pizza {
   id: number;
@@ -52,7 +53,6 @@ interface SortablePizzaProps {
   onSave: (pizza: Pizza) => void;
   onCancel: () => void;
   onDelete: (id: number) => void;
-  onImageUpload: (id: number, file: File) => void;
   editingPizza: Partial<Pizza>;
   setEditingPizza: (pizza: Partial<Pizza>) => void;
 }
@@ -64,7 +64,6 @@ function SortablePizza({
   onSave,
   onCancel,
   onDelete,
-  onImageUpload,
   editingPizza,
   setEditingPizza
 }: SortablePizzaProps) {
@@ -83,13 +82,6 @@ function SortablePizza({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      onImageUpload(pizza.id, file);
-    }
-  };
-
   if (isEditing) {
     return (
       <Card ref={setNodeRef} style={style} className="mb-4">
@@ -97,29 +89,12 @@ function SortablePizza({
           <div className="space-y-4">
             {/* Image Upload */}
             <div className="flex items-center space-x-4">
-              <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden">
-                {editingPizza.imageUrl ? (
-                  <img 
-                    src={editingPizza.imageUrl} 
-                    alt={editingPizza.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    🍕
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  title="Upload image"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 flex items-center justify-center">
-                  <Upload className="w-6 h-6 text-white opacity-0 hover:opacity-100 transition-opacity" />
-                </div>
-              </div>
+              <ImageUploadCrop
+                currentImageUrl={editingPizza.imageUrl}
+                onImageSave={(imageUrl) => setEditingPizza({ ...editingPizza, imageUrl })}
+                alt={editingPizza.name || 'Pizza'}
+                className="w-24 h-24"
+              />
               <div className="flex-1 space-y-2">
                 <Input
                   value={editingPizza.name || ''}
@@ -214,19 +189,16 @@ function SortablePizza({
           </div>
 
           {/* Image */}
-          <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-            {pizza.imageUrl ? (
-              <img 
-                src={pizza.imageUrl} 
-                alt={pizza.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                🍕
-              </div>
-            )}
-          </div>
+          <ImageUploadCrop
+            currentImageUrl={pizza.imageUrl}
+            onImageSave={(imageUrl) => {
+              // Update the pizza image directly
+              handleEdit({ ...pizza, imageUrl });
+              handleSave({ ...pizza, imageUrl });
+            }}
+            alt={pizza.name}
+            className="w-16 h-16 flex-shrink-0"
+          />
 
           {/* Info */}
           <div className="flex-1">
@@ -438,14 +410,13 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
     }
   };
 
-  const handleImageUpload = async (id: number, file: File) => {
-    // Pour l'instant, on simule l'upload en créant une URL locale
+  const handleImageUpload = async (id: number, imageUrl: string) => {
+    // Pour l'instant, on utilise l'URL générée par le crop
     // En production, tu ajouteras un vrai service d'upload
-    const imageUrl = URL.createObjectURL(file);
-    setEditingPizza(prev => ({ ...prev, imageUrl }));
+    console.log('Save image URL for pizza', id, imageUrl);
     
     // TODO: Implémenter le vrai upload vers ton service de stockage
-    console.log('Upload image pour pizza', id, file);
+    // For now, the imageUrl is already set by the ImageUploadCrop component
   };
 
   const startCreating = () => {
@@ -497,7 +468,6 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
               onSave={handleCreate}
               onCancel={handleCancel}
               onDelete={() => {}}
-              onImageUpload={(_, file) => handleImageUpload(0, file)}
               editingPizza={editingPizza}
               setEditingPizza={setEditingPizza}
             />
@@ -521,7 +491,6 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
               onSave={handleSave}
               onCancel={handleCancel}
               onDelete={handleDelete}
-              onImageUpload={handleImageUpload}
               editingPizza={editingPizza}
               setEditingPizza={setEditingPizza}
             />
