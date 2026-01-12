@@ -1,17 +1,30 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { VegetarianFilter } from "./VegetarianFilter";
 import { usePizzas } from "../services/api";
-import { Leaf } from "lucide-react";
+import { Leaf, Beef, Egg, Drumstick } from "lucide-react";
 
 interface MenuPageProps {
   onNavigate: (page: string, id?: string) => void;
 }
 
+type PizzaFilter = 'all' | 'vegetarian' | 'beef' | 'chicken' | 'egg';
+
 export function MenuPage({ onNavigate }: MenuPageProps) {
   const [activeCategory, setActiveCategory] = useState<'pizzas' | 'desserts' | 'boissons'>('pizzas');
-  const [isVegetarianOnly, setIsVegetarianOnly] = useState(false);
-  const { pizzas, loading, error } = usePizzas(isVegetarianOnly);
+  const [pizzaFilter, setPizzaFilter] = useState<PizzaFilter>('all');
+  const { pizzas: allPizzas, loading, error } = usePizzas(false);
+
+  // Filtrer les pizzas selon le filtre actif
+  const pizzas = allPizzas.filter(pizza => {
+    if (pizzaFilter === 'all') return true;
+    if (pizzaFilter === 'vegetarian') return pizza.vegetarian;
+    // Pour les autres filtres, on pourrait ajouter une logique basée sur les ingrédients
+    // Pour l'instant, on retourne toutes les pizzas non-végétariennes pour beef/chicken/egg
+    if (pizzaFilter === 'beef' || pizzaFilter === 'chicken' || pizzaFilter === 'egg') {
+      return !pizza.vegetarian;
+    }
+    return true;
+  });
 
   const menuData = {
     desserts: [
@@ -57,12 +70,51 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
         </div>
       </div>
       <div className="container mx-auto px-4 py-8">
-        {/* Filtre végétarien - visible uniquement pour pizzas */}
+        {/* Filtres par ingrédient - visible uniquement pour pizzas */}
         {activeCategory === 'pizzas' && (
-          <VegetarianFilter
-            isVegetarianOnly={isVegetarianOnly}
-            onToggle={setIsVegetarianOnly}
-          />
+          <div className="mb-6">
+            <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+              <Button 
+                variant={pizzaFilter === 'all' ? "default" : "outline"}
+                onClick={() => setPizzaFilter('all')}
+                className="text-sm md:text-base px-4 py-2"
+              >
+                Toutes
+              </Button>
+              <Button 
+                variant={pizzaFilter === 'vegetarian' ? "default" : "outline"}
+                onClick={() => setPizzaFilter('vegetarian')}
+                className="text-sm md:text-base px-4 py-2 flex items-center gap-2"
+              >
+                <Leaf className="w-4 h-4" />
+                Végétariennes
+              </Button>
+              <Button 
+                variant={pizzaFilter === 'beef' ? "default" : "outline"}
+                onClick={() => setPizzaFilter('beef')}
+                className="text-sm md:text-base px-4 py-2 flex items-center gap-2"
+              >
+                <Beef className="w-4 h-4" />
+                Steak
+              </Button>
+              <Button 
+                variant={pizzaFilter === 'chicken' ? "default" : "outline"}
+                onClick={() => setPizzaFilter('chicken')}
+                className="text-sm md:text-base px-4 py-2 flex items-center gap-2"
+              >
+                <Drumstick className="w-4 h-4" />
+                Poulet
+              </Button>
+              <Button 
+                variant={pizzaFilter === 'egg' ? "default" : "outline"}
+                onClick={() => setPizzaFilter('egg')}
+                className="text-sm md:text-base px-4 py-2 flex items-center gap-2"
+              >
+                <Egg className="w-4 h-4" />
+                Œuf
+              </Button>
+            </div>
+          </div>
         )}
 
         {/* État de chargement */}
