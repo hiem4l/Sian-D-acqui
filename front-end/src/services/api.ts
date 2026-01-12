@@ -348,11 +348,29 @@ export function useNews() {
 }
 
 // Pizzas API
+// Helper function to retry failed requests
+async function fetchWithRetry(url: string, retries = 3, delay = 1000): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url);
+      if (response.ok || i === retries - 1) {
+        return response;
+      }
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, delay));
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  throw new Error('Max retries reached');
+}
+
 export const pizzasAPI = {
   async getAll(): Promise<Pizza[]> {
-    console.log(`🍕 Fetching pizzas from: ${API_BASE_URL}/pizzas`);
+    console.log(`🍕 Fetching all pizzas from: ${API_BASE_URL}/pizzas`);
     try {
-      const response = await fetch(`${API_BASE_URL}/pizzas`);
+      const response = await fetchWithRetry(`${API_BASE_URL}/pizzas`);
       console.log(`📡 Response status: ${response.status} ${response.statusText}`);
       console.log(`📋 Response headers:`, Object.fromEntries(response.headers.entries()));
       
@@ -374,7 +392,7 @@ export const pizzasAPI = {
   async getAvailable(): Promise<Pizza[]> {
     console.log(`🍕 Fetching available pizzas from: ${API_BASE_URL}/pizzas/available`);
     try {
-      const response = await fetch(`${API_BASE_URL}/pizzas/available`);
+      const response = await fetchWithRetry(`${API_BASE_URL}/pizzas/available`);
       console.log(`📡 Response status: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
@@ -395,7 +413,7 @@ export const pizzasAPI = {
   async getVegetarian(): Promise<Pizza[]> {
     console.log(`🍕 Fetching vegetarian pizzas from: ${API_BASE_URL}/pizzas/vegetarian`);
     try {
-      const response = await fetch(`${API_BASE_URL}/pizzas/vegetarian`);
+      const response = await fetchWithRetry(`${API_BASE_URL}/pizzas/vegetarian`);
       console.log(`📡 Response status: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
@@ -416,7 +434,7 @@ export const pizzasAPI = {
   async getById(id: number): Promise<Pizza> {
     console.log(`🍕 Fetching pizza #${id} from: ${API_BASE_URL}/pizzas/${id}`);
     try {
-      const response = await fetch(`${API_BASE_URL}/pizzas/${id}`);
+      const response = await fetchWithRetry(`${API_BASE_URL}/pizzas/${id}`);
       console.log(`📡 Response status: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
