@@ -5,6 +5,29 @@ import { DataSource } from 'typeorm';
 export class AdminController {
   constructor(private readonly dataSource: DataSource) {}
 
+  @Post('add-ingredient-columns')
+  async addIngredientColumns() {
+    try {
+      // Ajouter les colonnes manquantes à la table ingredients
+      await this.dataSource.query(`
+        ALTER TABLE ingredients 
+        ADD COLUMN IF NOT EXISTS description TEXT,
+        ADD COLUMN IF NOT EXISTS "imageUrl" VARCHAR(500);
+      `);
+      
+      return { 
+        success: true, 
+        message: 'Colonnes description et imageUrl ajoutées à la table ingredients' 
+      };
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout des colonnes:', error);
+      return { 
+        success: false, 
+        message: error.message 
+      };
+    }
+  }
+
   @Post('init-db')
   async initDatabase() {
     try {
