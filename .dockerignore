@@ -1,0 +1,7 @@
+# Ignore tout sauf le backend
+front-end/node_modules
+front-end/dist
+*.log
+.git
+.env.local
+.DS_Store
