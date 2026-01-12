@@ -14,7 +14,7 @@ export class BoissonService {
     return this.boissonRepository.find({ order: { displayOrder: 'ASC', id: 'ASC' } });
   }
 
-  findOne(id: number): Promise<Boisson> {
+  findOne(id: number): Promise<Boisson | null> {
     return this.boissonRepository.findOne({ where: { id } });
   }
 
@@ -37,7 +37,7 @@ export class BoissonService {
     return this.boissonRepository.save(newBoisson);
   }
 
-  async update(id: number, boisson: Partial<Boisson>): Promise<Boisson> {
+  async update(id: number, boisson: Partial<Boisson>): Promise<Boisson | null> {
     await this.boissonRepository.update(id, boisson);
     return this.findOne(id);
   }

@@ -14,7 +14,7 @@ export class DessertService {
     return this.dessertRepository.find({ order: { displayOrder: 'ASC', id: 'ASC' } });
   }
 
-  findOne(id: number): Promise<Dessert> {
+  findOne(id: number): Promise<Dessert | null> {
     return this.dessertRepository.findOne({ where: { id } });
   }
 
@@ -30,7 +30,7 @@ export class DessertService {
     return this.dessertRepository.save(newDessert);
   }
 
-  async update(id: number, dessert: Partial<Dessert>): Promise<Dessert> {
+  async update(id: number, dessert: Partial<Dessert>): Promise<Dessert | null> {
     await this.dessertRepository.update(id, dessert);
     return this.findOne(id);
   }

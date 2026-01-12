@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { pizzasAPI, Pizza } from '../services/api';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { pizzasAPI } from '../services/api';
+import type { Pizza } from '../services/api';
 
 interface PizzaContextType {
   pizzas: Pizza[];
