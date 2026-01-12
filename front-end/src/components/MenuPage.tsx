@@ -215,18 +215,8 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
         {activeCategory === 'pizzas' && !loading && !error && pizzas.length === 0 && (
           <div className="text-center py-12">
             <p className="text-lg text-gray-600 mb-4">
-              {isVegetarianOnly 
-                ? "Aucune pizza végétarienne disponible pour le moment."
-                : "Aucune pizza disponible pour le moment."}
+              Aucune pizza disponible pour le moment.
             </p>
-            {isVegetarianOnly && (
-              <button
-                onClick={() => setIsVegetarianOnly(false)}
-                className="text-blue-600 hover:text-blue-800 font-semibold"
-              >
-                Voir toutes les pizzas
-              </button>
-            )}
           </div>
         )}
       </div>

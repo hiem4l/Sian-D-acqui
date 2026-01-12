@@ -115,6 +115,9 @@ export const pizzasAPI = {
   }
 };
 
+// Alias pour compatibilité
+export const pizzaService = pizzasAPI;
+
 // Desserts API
 export const dessertsAPI = {
   async getAll(): Promise<Dessert[]> {
