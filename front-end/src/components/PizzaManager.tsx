@@ -113,10 +113,10 @@ function SortablePizza({
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <ImageUploadCrop
-                  currentImageUrl={getImageUrl(editingPizza.imageUrl) || undefined}
+                  currentImageUrl={editingPizza.imageUrl || ''}
                   onImageSave={(imageUrl) => {
                     setEditingPizza({ ...editingPizza, imageUrl });
-                    console.log('Image uploaded:', imageUrl);
+                    console.log('Image updated in edit mode:', imageUrl);
                     toast.success('Image mise à jour');
                   }}
                   alt={editingPizza.name || 'Pizza'}
@@ -128,7 +128,7 @@ function SortablePizza({
                       setEditingPizza({ ...editingPizza, imageUrl: '' });
                       toast.success('Image supprimée');
                     }}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
                     title="Supprimer l'image"
                   >
                     ×
@@ -422,7 +422,13 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
 
   const handleEdit = (pizza: Pizza) => {
     setEditingId(pizza.id);
-    setEditingPizza(pizza);
+    // Copier toutes les données de la pizza, y compris l'image
+    setEditingPizza({
+      ...pizza,
+      price: pizza.price.toString(),
+      imageUrl: pizza.imageUrl || ''
+    });
+    console.log('Editing pizza with image:', pizza.imageUrl);
   };
 
   const handleSave = async (updatedPizza: Pizza) => {
@@ -455,7 +461,12 @@ export function PizzaManager({ onBack }: PizzaManagerProps) {
       if (response.ok) {
         // Mettre à jour seulement la pizza modifiée dans l'état local
         setPizzas(prev => prev.map(p => 
-          p.id === updatedPizza.id ? { ...p, ...updatedPizza } : p
+          p.id === updatedPizza.id ? { 
+            ...p, 
+            ...updatedPizza,
+            price: parseFloat(updatedPizza.price), // Ensure price is number in state
+            imageUrl: updatedPizza.imageUrl || null
+          } : p
         ));
         setEditingId(null);
         setEditingPizza({});

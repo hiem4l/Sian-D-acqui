@@ -25,9 +25,10 @@ export function ImageUploadCrop({
   const imgRef = useRef<HTMLImageElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset cropped image when currentImageUrl changes
+  // Reset cropped image when currentImageUrl changes from outside
   React.useEffect(() => {
-    if (currentImageUrl !== croppedImageUrl) {
+    // Si on a une nouvelle currentImageUrl qui est différente du crop actuel
+    if (currentImageUrl && currentImageUrl !== croppedImageUrl) {
       setCroppedImageUrl('');
     }
   }, [currentImageUrl]);
@@ -126,26 +127,49 @@ export function ImageUploadCrop({
 
   return (
     <>
+  // Helper function to get the display image URL
+  const getDisplayImageUrl = () => {
+    // Priorité: image croppée > image actuelle 
+    if (croppedImageUrl) return croppedImageUrl;
+    if (currentImageUrl) {
+      // Convertir les URLs relatives en URLs absolues
+      if (currentImageUrl.startsWith('/')) return currentImageUrl;
+      if (currentImageUrl.startsWith('blob:')) return currentImageUrl;
+      if (currentImageUrl.startsWith('http')) return currentImageUrl;
+      // Sinon c'est probablement un nom de fichier
+      return `/images/pizzas/${currentImageUrl}`;
+    }
+    return null;
+  };
+
+  return (
+    <>
       {/* Image cliquable */}
       <div 
         className={`${className} bg-gray-100 rounded-lg overflow-hidden relative cursor-pointer group hover:bg-gray-200 transition-colors`}
         onClick={openFileDialog}
       >
-        {croppedImageUrl || currentImageUrl ? (
+        {getDisplayImageUrl() ? (
           <img 
-            src={croppedImageUrl || currentImageUrl} 
+            src={getDisplayImageUrl()!} 
             alt={alt}
             className="w-full h-full object-cover"
             onError={(e) => {
-              console.log('ImageUploadCrop: Image failed to load:', croppedImageUrl || currentImageUrl);
+              console.log('ImageUploadCrop: Image failed to load:', getDisplayImageUrl());
               e.currentTarget.style.display = 'none';
               const parent = e.currentTarget.parentElement;
               if (parent && !parent.querySelector('.upload-fallback')) {
                 const fallback = document.createElement('div');
                 fallback.className = 'upload-fallback w-full h-full flex items-center justify-center text-gray-400';
-                fallback.textContent = '🍕';
+                fallback.innerHTML = '🍕';
                 parent.appendChild(fallback);
               }
+            }}
+            onLoad={(e) => {
+              // Remove fallback when image loads
+              const parent = e.currentTarget.parentElement;
+              const fallback = parent?.querySelector('.upload-fallback');
+              if (fallback) fallback.remove();
             }}
           />
         ) : (
