@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { usePizzas } from "../services/api";
 import { Leaf, Beef, Egg, Drumstick } from "lucide-react";
+import { usePizzaContext } from "../contexts/PizzaContext";
 
 interface MenuPageProps {
   onNavigate: (page: string, id?: string) => void;
@@ -12,7 +12,7 @@ type PizzaFilter = 'all' | 'vegetarian' | 'beef' | 'chicken' | 'egg';
 export function MenuPage({ onNavigate }: MenuPageProps) {
   const [activeCategory, setActiveCategory] = useState<'pizzas' | 'desserts' | 'boissons'>('pizzas');
   const [pizzaFilter, setPizzaFilter] = useState<PizzaFilter>('all');
-  const { pizzas: allPizzas, loading, error } = usePizzas(false);
+  const { pizzas: allPizzas, loading, error } = usePizzaContext();
 
   // Filtrer les pizzas selon le filtre actif
   const pizzas = allPizzas.filter(pizza => {

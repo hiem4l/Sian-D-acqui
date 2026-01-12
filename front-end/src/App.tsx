@@ -8,6 +8,7 @@ import { AdminDashboard } from "./components/AdminDashboard";
 import { PizzaDetailPage } from "./components/PizzaDetailPage";
 import { AccessibilityProvider } from "./components/AccessibilityProvider";
 import { AuthProvider } from "./contexts/AuthContext";
+import { PizzaProvider } from "./contexts/PizzaContext";
 
 type Page = "home" | "menu" | "contact" | "admin" | "pizza-detail";
 
@@ -37,7 +38,9 @@ function usePageAnnouncement() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <PizzaProvider>
+        <AppContent />
+      </PizzaProvider>
     </AuthProvider>
   );
 }
