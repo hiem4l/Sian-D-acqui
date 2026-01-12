@@ -128,21 +128,27 @@ function SortablePizza({
                   className="font-semibold"
                 />
                 <div className="flex space-x-2">
-                  <Input
-                    type="number"
-                    value={editingPizza.price || ''}
-                    onChange={(e) => setEditingPizza({ ...editingPizza, price: e.target.value })}
-                    placeholder="Prix"
-                    className="w-24"
-                    step="0.50"
-                  />
-                  <Input
-                    type="number"
-                    value={editingPizza.preparationTime || ''}
-                    onChange={(e) => setEditingPizza({ ...editingPizza, preparationTime: parseInt(e.target.value) })}
-                    placeholder="Temps (min)"
-                    className="w-32"
-                  />
+                  <div className="relative w-24">
+                    <Input
+                      type="number"
+                      value={editingPizza.price || ''}
+                      onChange={(e) => setEditingPizza({ ...editingPizza, price: e.target.value })}
+                      placeholder="10"
+                      className="pr-6"
+                      step="0.50"
+                    />
+                    <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">€</span>
+                  </div>
+                  <div className="relative w-32">
+                    <Input
+                      type="number"
+                      value={editingPizza.preparationTime || ''}
+                      onChange={(e) => setEditingPizza({ ...editingPizza, preparationTime: parseInt(e.target.value) })}
+                      placeholder="15"
+                      className="pr-8"
+                    />
+                    <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">min</span>
+                  </div>
                 </div>
               </div>
             </div>
