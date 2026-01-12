@@ -174,7 +174,7 @@ export function AdminDashboard({ user, onLogout, onNavigate }: AdminDashboardPro
                 <p className="text-sm text-muted-foreground">
                   Ajouter, modifier ou supprimer des pizzas
                 </p>
-                <Button className="mt-4" onClick={() => alert('Fonctionnalité en développement')}>
+                <Button className="mt-4" onClick={() => onNavigate('pizzaManager')}>
                   Gérer les pizzas
                 </Button>
               </CardContent>

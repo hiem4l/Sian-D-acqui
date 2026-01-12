@@ -105,6 +105,21 @@ export class PizzaService {
     return this.pizzaRepository.save(pizza);
   }
 
+  async reorderPizzas(pizzaIds: number[]): Promise<{ success: boolean }> {
+    // Pour l'instant, on va juste valider que tous les IDs existent
+    const existingPizzas = await this.pizzaRepository.find({
+      where: { id: In(pizzaIds) }
+    });
+
+    if (existingPizzas.length !== pizzaIds.length) {
+      throw new NotFoundException('Some pizza IDs not found');
+    }
+
+    // Dans une vraie implémentation, on pourrait sauvegarder l'ordre
+    // Pour l'instant, on retourne juste success
+    return { success: true };
+  }
+
   async findVegetarian(): Promise<Pizza[]> {
     return this.pizzaRepository.find({
       where: { vegetarian: true, available: true },

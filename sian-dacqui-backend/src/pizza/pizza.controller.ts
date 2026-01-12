@@ -44,6 +44,12 @@ export class PizzaController {
     return this.pizzaService.remove(+id);
   }
 
+  @Post('reorder')
+  @HttpCode(HttpStatus.OK)
+  reorderPizzas(@Body() reorderData: { pizzaIds: number[] }) {
+    return this.pizzaService.reorderPizzas(reorderData.pizzaIds);
+  }
+
   @Post(':pizzaId/ingredients/:ingredientId')
   addIngredient(
     @Param('pizzaId') pizzaId: string,
