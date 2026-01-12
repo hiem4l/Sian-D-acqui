@@ -4,7 +4,7 @@ import { Footer } from "./components/Footer";
 import { PizzeriaHome } from "./components/PizzeriaHome";
 import { MenuPage } from "./components/MenuPage";
 import { ContactPage } from "./components/ContactPage";
-import { AdminDashboard } from "./components/AdminDashboard";
+import { AdminPage } from "./components/AdminPage";
 import { PizzaDetailPage } from "./components/PizzaDetailPage";
 import { AccessibilityProvider } from "./components/AccessibilityProvider";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -82,7 +82,7 @@ function AppContent() {
       case "contact":
         return <ContactPage onNavigate={handleNavigate} />;
       case "admin":
-        return <AdminDashboard onNavigate={handleNavigate} />;
+        return <AdminPage onNavigate={handleNavigate} />;
       case "pizza-detail":
         return <PizzaDetailPage pizzaId={selectedPizzaId} onNavigate={handleNavigate} />;
       default:

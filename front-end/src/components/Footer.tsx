@@ -78,6 +78,13 @@ export function Footer({ onNavigate }: FooterProps) {
             <button className="hover:text-amber-500 transition-colors focus-outline" aria-label="Voir les conditions d'utilisation">
               Conditions
             </button>
+            <button 
+              onClick={() => onNavigate('admin')} 
+              className="hover:text-amber-300 transition-colors focus-outline text-xs opacity-70" 
+              aria-label="Accès administration"
+            >
+              Admin
+            </button>
           </nav>
         </div>
       </div>
