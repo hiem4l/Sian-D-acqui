@@ -483,11 +483,18 @@ body.keyboard-navigation *:focus {
   padding: 1rem 0;
 }
 .site-banner img {
-  max-width: 1100px; /* keeps banner readable on large screens */
+  max-width: 400px; /* Smaller on desktop */
   width: 92%;
   height: auto;
   object-fit: contain;
   display: block;
+}
+
+@media (max-width: 768px) {
+  .site-banner img {
+    max-width: none; /* Full width on mobile */
+    width: 92%;
+  }
 }
 
 /* Header adjustments for pizzeria feel */
