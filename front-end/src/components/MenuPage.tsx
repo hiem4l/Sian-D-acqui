@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Leaf, Beef, Egg, Drumstick, Fish } from "lucide-react";
+import { Leaf, Beef, Egg, Fish } from "lucide-react";
 import { usePizzaContext } from "../contexts/PizzaContext";
 
 interface MenuPageProps {
   onNavigate: (page: string, id?: string) => void;
 }
 
-type PizzaFilter = 'all' | 'vegetarian' | 'beef' | 'chicken' | 'egg' | 'fish';
+type PizzaFilter = 'all' | 'vegetarian' | 'beef' | 'egg' | 'fish';
 
 export function MenuPage({ onNavigate }: MenuPageProps) {
   const [activeCategory, setActiveCategory] = useState<'pizzas' | 'desserts' | 'boissons'>('pizzas');
@@ -35,12 +35,6 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
     if (pizzaFilter === 'beef') {
       // Pizzas avec viande/bœuf: Merguez, Cannibale
       return pizzaName.includes('merguez') || pizzaName.includes('cannibale');
-    }
-    
-    if (pizzaFilter === 'chicken') {
-      // Pour l'instant pas de pizzas au poulet, on retourne un tableau vide
-      // À activer quand il y aura des pizzas au poulet
-      return false;
     }
     
     return true;
@@ -116,14 +110,6 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
               >
                 <Beef className="w-4 h-4" />
                 Steak
-              </Button>
-              <Button 
-                variant={pizzaFilter === 'chicken' ? "default" : "outline"}
-                onClick={() => setPizzaFilter('chicken')}
-                className="text-sm md:text-base px-4 py-2 flex items-center gap-2"
-              >
-                <Drumstick className="w-4 h-4" />
-                Poulet
               </Button>
               <Button 
                 variant={pizzaFilter === 'egg' ? "default" : "outline"}
