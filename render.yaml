@@ -25,12 +25,13 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://inspiring-florentine-3dde71.netlify.app
+        value: https://unique-lokum-436816.netlify.app
       - key: DB_SYNCHRONIZE
         value: true
 
 databases:
   - name: sian-dacqui-db
+    region: frankfurt
     plan: free
     databaseName: sian_dacqui
     user: sian_user
