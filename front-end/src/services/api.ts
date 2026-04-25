@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
+import { PIZZERIA_MENU } from '../data/pizzeria-menu';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const REQUEST_TIMEOUT_MS = 6000;
+const MAX_RETRIES = 1;
 console.log('🌐 API_BASE_URL configuré:', API_BASE_URL);
 console.log('🔧 VITE_API_URL env variable:', import.meta.env.VITE_API_URL);
 
@@ -51,12 +54,45 @@ export interface Boisson {
   updatedAt: string;
 }
 
+function normalizePrice(rawPrice: string): string {
+  return rawPrice.replace('EUR', '').replace('€', '').replace(',', '.').trim();
+}
+
+function buildFallbackPizzas(): Pizza[] {
+  const now = new Date().toISOString();
+  return PIZZERIA_MENU.map((item, index) => ({
+    id: index + 1,
+    name: item.name,
+    description: item.desc,
+    price: normalizePrice(item.price),
+    size: 'M',
+    available: true,
+    vegetarian: /vegetariana|quattro formaggi|margherita/i.test(item.name),
+    imageUrl: null,
+    preparationTime: 15,
+    ingredients: [],
+    createdAt: now,
+    updatedAt: now,
+  }));
+}
+
+async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 // Helper function with retry logic
-async function fetchWithRetry(url: string, retries = 5, initialDelay = 2000): Promise<Response> {
+async function fetchWithRetry(url: string, retries = MAX_RETRIES, initialDelay = 1200): Promise<Response> {
   for (let i = 0; i < retries; i++) {
     try {
       console.log(`🔄 Tentative ${i + 1}/${retries} pour: ${url}`);
-      const response = await fetch(url);
+      const response = await fetchWithTimeout(url, REQUEST_TIMEOUT_MS);
       
       if (response.ok) {
         console.log(`✅ Succès après ${i + 1} tentative(s)`);
@@ -73,8 +109,13 @@ async function fetchWithRetry(url: string, retries = 5, initialDelay = 2000): Pr
       
     } catch (error) {
       console.error(`💥 Erreur tentative ${i + 1}:`, error);
-      
-      if (i === retries - 1) throw error;
+
+      if (i === retries - 1) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          throw new Error('Serveur indisponible (timeout). Reessayez dans quelques secondes.');
+        }
+        throw error;
+      }
       
       const delay = initialDelay * Math.pow(2, i);
       console.log(`⏳ Attente de ${delay}ms avant nouvelle tentative...`);
@@ -102,7 +143,8 @@ export const pizzasAPI = {
       return data;
     } catch (error) {
       console.error('💥 Fetch error:', error);
-      throw error;
+      console.warn('⚠️ Backend indisponible, utilisation des pizzas locales en secours');
+      return buildFallbackPizzas();
     }
   },
 

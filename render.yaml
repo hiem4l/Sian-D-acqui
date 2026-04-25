@@ -8,7 +8,7 @@ services:
     branch: main
     buildCommand: npm install --prefix sian-dacqui-backend && npm run build --prefix sian-dacqui-backend
     startCommand: cd sian-dacqui-backend && npm run start:prod
-    healthCheckPath: /api/pizzas
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
@@ -24,6 +24,8 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
+      - key: FRONTEND_URL
+        value: https://inspiring-florentine-3dde71.netlify.app
       - key: DB_SYNCHRONIZE
         value: true
 

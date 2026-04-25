@@ -19,4 +19,4 @@ COPY package*.json ./
 RUN npm ci --omit=dev --ignore-scripts
 COPY --from=build /app/dist ./dist
 EXPOSE 3001
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main.js"]

@@ -125,9 +125,6 @@ export function ImageUploadCrop({
     fileInputRef.current?.click();
   };
 
-  return (
-    <>
-  // Helper function to get the display image URL
   const getDisplayImageUrl = () => {
     // Priorité: image croppée > image actuelle 
     if (croppedImageUrl) return croppedImageUrl;
