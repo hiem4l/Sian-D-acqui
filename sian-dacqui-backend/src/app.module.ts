@@ -41,7 +41,7 @@ import { BoissonModule } from './boisson/boisson.module';
           };
         } else {
           // Configuration Neon pour production
-          const databaseUrl = process.env.NETLIFY_DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+          const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL_UNPOOLED;
           return {
             type: 'postgres',
             url: databaseUrl,
